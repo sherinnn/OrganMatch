@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrganMatch - AgentCore Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .status-section {
+            padding: 30px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .status-card.success {
+            border-left-color: #28a745;
+        }
+        
+        .status-card.warning {
+            border-left-color: #ffc107;
+        }
+        
+        .status-card.error {
+            border-left-color: #dc3545;
+        }
+        
+        .status-card h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-indicator.online {
+            background: #28a745;
+        }
+        
+        .status-indicator.offline {
+            background: #dc3545;
+        }
+        
+        .status-indicator.warning {
+            background: #ffc107;
+        }
+        
+        .tools-section {
+            padding: 30px;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .tool-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .tool-card:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .tool-card.available {
+            border-color: #28a745;
+        }
+        
+        .tool-card.unavailable {
+            border-color: #dc3545;
+            opacity: 0.6;
+        }
+        
+        .tool-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .test-section {
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        
+        .test-results {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 OrganMatch AgentCore Dashboard</h1>
+            <p>Real-time monitoring and testing of AgentCore integration</p>
+        </div>
+        
+        <div class="status-section">
+            <h2>🔍 System Status</h2>
+            <div class="status-grid">
+                <div class="status-card" id="agentcore-status">
+                    <h3><span class="status-indicator offline"></span>AgentCore Integration</h3>
+                    <p id="agentcore-details">Checking...</p>
+                </div>
+                
+                <div class="status-card" id="gateway-status">
+                    <h3><span class="status-indicator offline"></span>Gateway Connection</h3>
+                    <p id="gateway-details">Checking...</p>
+                </div>
+                
+                <div class="status-card" id="agent-status">
+                    <h3><span class="status-indicator offline"></span>Bedrock Agent</h3>
+                    <p id="agent-details">Checking...</p>
+                </div>
+                
+                <div class="status-card" id="tools-status">
+                    <h3><span class="status-indicator offline"></span>Available Tools</h3>
+                    <p id="tools-details">Checking...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tools-section">
+            <h2>🛠️ OrganMatch Tools</h2>
+            <div class="tools-grid">
+                <div class="tool-card unavailable" id="viability-tool">
+                    <div class="tool-icon">🫀</div>
+                    <h3>Viability Tool</h3>
+                    <p>Check organ viability based on time, temperature, and condition</p>
+                </div>
+                
+                <div class="tool-card unavailable" id="weather-tool">
+                    <div class="tool-icon">🌤️</div>
+                    <h3>Weather Tool</h3>
+                    <p>Get weather data for transport planning</p>
+                </div>
+                
+                <div class="tool-card unavailable" id="flight-tool">
+                    <div class="tool-icon">✈️</div>
+                    <h3>Flight Tool</h3>
+                    <p>Find flights between cities for organ transport</p>
+                </div>
+                
+                <div class="tool-card unavailable" id="matcher-tool">
+                    <div class="tool-icon">🔗</div>
+                    <h3>Matcher Tool</h3>
+                    <p>Match donors and recipients for compatibility</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🧪 Integration Testing</h2>
+            <div class="test-controls">
+                <button class="btn btn-primary" onclick="runStatusCheck()">
+                    <span id="status-loading" class="loading hidden"></span>
+                    Check Status
+                </button>
+                
+                <button class="btn btn-success" onclick="runViabilityTest()">
+                    <span id="viability-loading" class="loading hidden"></span>
+                    Test Viability
+                </button>
+                
+                <button class="btn btn-success" onclick="runWeatherTest()">
+                    <span id="weather-loading" class="loading hidden"></span>
+                    Test Weather
+                </button>
+                
+                <button class="btn btn-success" onclick="runFlightTest()">
+                    <span id="flight-loading" class="loading hidden"></span>
+                    Test Flights
+                </button>
+                
+                <button class="btn btn-success" onclick="runMatchingTest()">
+                    <span id="matching-loading" class="loading hidden"></span>
+                    Test Matching
+                </button>
+                
+                <button class="btn btn-warning" onclick="runAgentChat()">
+                    <span id="chat-loading" class="loading hidden"></span>
+                    Test Agent Chat
+                </button>
+            </div>
+            
+            <div class="test-results" id="test-results">
+                <p>Click a test button to see results...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let agentcoreStatus = null;
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            runStatusCheck();
+        });
+        
+        // Utility functions
+        function showLoading(elementId) {
+            document.getElementById(elementId).classList.remove('hidden');
+        }
+        
+        function hideLoading(elementId) {
+            document.getElementById(elementId).classList.add('hidden');
+        }
+        
+        function updateResults(content) {
+            document.getElementById('test-results').innerHTML = content;
+        }
+        
+        function formatJson(obj) {
+            return JSON.stringify(obj, null, 2);
+        }
+        
+        // Status check function
+        async function runStatusCheck() {
+            showLoading('status-loading');
+            
+            try {
+                const response = await fetch('/api/agentcore-status');
+                const status = await response.json();
+                agentcoreStatus = status;
+                
+                updateStatusCards(status);
+                updateResults(`
+                    <h3>✅ Status Check Complete</h3>
+                    <pre>${formatJson(status)}</pre>
+                `);
+                
+            } catch (error) {
+                updateResults(`
+                    <h3>❌ Status Check Failed</h3>
+                    <p>Error: ${error.message}</p>
+                `);
+            } finally {
+                hideLoading('status-loading');
+            }
+        }
+        
+        function updateStatusCards(status) {
+            // AgentCore status
+            const agentcoreCard = document.getElementById('agentcore-status');
+            const agentcoreIndicator = agentcoreCard.querySelector('.status-indicator');
+            const agentcoreDetails = document.getElementById('agentcore-details');
+            
+            if (status.agentcore_available) {
+                agentcoreCard.className = 'status-card success';
+                agentcoreIndicator.className = 'status-indicator online';
+                agentcoreDetails.textContent = 'AgentCore client available';
+            } else {
+                agentcoreCard.className = 'status-card warning';
+                agentcoreIndicator.className = 'status-indicator warning';
+                agentcoreDetails.textContent = 'Using fallback mode';
+            }
+            
+            // Gateway status
+            const gatewayCard = document.getElementById('gateway-status');
+            const gatewayIndicator = gatewayCard.querySelector('.status-indicator');
+            const gatewayDetails = document.getElementById('gateway-details');
+            
+            gatewayCard.className = 'status-card success';
+            gatewayIndicator.className = 'status-indicator online';
+            gatewayDetails.textContent = `Gateway ID: ${status.gateway_id}`;
+            
+            // Agent status
+            const agentCard = document.getElementById('agent-status');
+            const agentIndicator = agentCard.querySelector('.status-indicator');
+            const agentDetails = document.getElementById('agent-details');
+            
+            agentCard.className = 'status-card success';
+            agentIndicator.className = 'status-indicator online';
+            agentDetails.textContent = `Agent ID: ${status.agent_id}`;
+            
+            // Tools status
+            const toolsCard = document.getElementById('tools-status');
+            const toolsIndicator = toolsCard.querySelector('.status-indicator');
+            const toolsDetails = document.getElementById('tools-details');
+            
+            if (status.target_count > 0) {
+                toolsCard.className = 'status-card success';
+                toolsIndicator.className = 'status-indicator online';
+                toolsDetails.textContent = `${status.target_count} tools available`;
+                
+                // Update tool cards
+                status.gateway_targets.forEach(tool => {
+                    const toolCard = document.getElementById(tool);
+                    if (toolCard) {
+                        toolCard.className = 'tool-card available';
+                    }
+                });
+            } else {
+                toolsCard.className = 'status-card warning';
+                toolsIndicator.className = 'status-indicator warning';
+                toolsDetails.textContent = 'Using simulation mode';
+            }
+        }
+        
+        // Test functions
+        async function runViabilityTest() {
+            showLoading('viability-loading');
+            
+            const testData = {
+                organ: {
+                    type: "heart",
+                    donation_time: "2024-10-19T10:00:00",
+                    temperature: 4,
+                    condition_score: 85
+                }
+            };
+            
+            try {
+                const response = await fetch('/api/check-viability', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                const result = await response.json();
+                
+                updateResults(`
+                    <h3>🫀 Viability Test Result</h3>
+                    <p><strong>Method:</strong> ${result.method || 'unknown'}</p>
+                    <p><strong>Is Viable:</strong> ${result.is_viable ? '✅ Yes' : '❌ No'}</p>
+                    <p><strong>Hours Left:</strong> ${result.hours_left}</p>
+                    <p><strong>Recommendation:</strong> ${result.recommendation}</p>
+                    <pre>${formatJson(result)}</pre>
+                `);
+                
+            } catch (error) {
+                updateResults(`
+                    <h3>❌ Viability Test Failed</h3>
+                    <p>Error: ${error.message}</p>
+                `);
+            } finally {
+                hideLoading('viability-loading');
+            }
+        }
+        
+        async function runWeatherTest() {
+            showLoading('weather-loading');
+            
+            const testData = { location: "Boston" };
+            
+            try {
+                const response = await fetch('/api/get-weather', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                const result = await response.json();
+                
+                updateResults(`
+                    <h3>🌤️ Weather Test Result</h3>
+                    <p><strong>Method:</strong> ${result.method || 'unknown'}</p>
+                    <p><strong>Location:</strong> ${result.location || 'Unknown'}</p>
+                    <p><strong>Temperature:</strong> ${result.temperature_c}°C</p>
+                    <p><strong>Condition:</strong> ${result.condition}</p>
+                    <pre>${formatJson(result)}</pre>
+                `);
+                
+            } catch (error) {
+                updateResults(`
+                    <h3>❌ Weather Test Failed</h3>
+                    <p>Error: ${error.message}</p>
+                `);
+            } finally {
+                hideLoading('weather-loading');
+            }
+        }
+        
+        async function runFlightTest() {
+            showLoading('flight-loading');
+            
+            const testData = {
+                origin: "BOS",
+                destination: "LAX",
+                date: "2024-10-20"
+            };
+            
+            try {
+                const response = await fetch('/api/search-flights', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                const result = await response.json();
+                
+                updateResults(`
+                    <h3>✈️ Flight Test Result</h3>
+                    <p><strong>Method:</strong> ${result.method || 'unknown'}</p>
+                    <p><strong>Flights Found:</strong> ${result.flights ? result.flights.length : 0}</p>
+                    <p><strong>Fastest Flight:</strong> ${result.fastest_flight}</p>
+                    <p><strong>Recommendation:</strong> ${result.recommendation}</p>
+                    <pre>${formatJson(result)}</pre>
+                `);
+                
+            } catch (error) {
+                updateResults(`
+                    <h3>❌ Flight Test Failed</h3>
+                    <p>Error: ${error.message}</p>
+                `);
+            } finally {
+                hideLoading('flight-loading');
+            }
+        }
+        
+        async function runMatchingTest() {
+            showLoading('matching-loading');
+            
+            const testData = {
+                donor: { id: "D123", blood_type: "O+", age: 30 },
+                recipient: { id: "R456", blood_type: "O+", age: 35 }
+            };
+            
+            try {
+                const response = await fetch('/api/match-compatibility', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                const result = await response.json();
+                
+                updateResults(`
+                    <h3>🔗 Matching Test Result</h3>
+                    <p><strong>Method:</strong> ${result.method || 'unknown'}</p>
+                    <p><strong>Compatible:</strong> ${result.is_compatible ? '✅ Yes' : '❌ No'}</p>
+                    <p><strong>Match Score:</strong> ${result.match_score}</p>
+                    <p><strong>Recommendation:</strong> ${result.recommendation}</p>
+                    <pre>${formatJson(result)}</pre>
+                `);
+                
+            } catch (error) {
+                updateResults(`
+                    <h3>❌ Matching Test Failed</h3>
+                    <p>Error: ${error.message}</p>
+                `);
+            } finally {
+                hideLoading('matching-loading');
+            }
+        }
+        
+        async function runAgentChat() {
+            showLoading('chat-loading');
+            
+            const testData = {
+                message: "I need to transport a heart from Boston to Los Angeles. The organ was donated 2 hours ago. Can you help?",
+                context: {
+                    organ_type: "heart",
+                    origin: "Boston", 
+                    destination: "Los Angeles",
+                    hours_elapsed: 2
+                }
+            };
+            
+            try {
+                const response = await fetch('/api/agent-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateResults(`
+                        <h3>🤖 Agent Chat Test Result</h3>
+                        <p><strong>Method:</strong> ${result.method || 'unknown'}</p>
+                        <p><strong>Success:</strong> ✅ Yes</p>
+                        <h4>Agent Response:</h4>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                            ${result.response}
+                        </div>
+                    `);
+                } else {
+                    updateResults(`
+                        <h3>❌ Agent Chat Test Failed</h3>
+                        <p><strong>Method:</strong> ${result.method || 'unknown'}</p>
+                        <p><strong>Error:</strong> ${result.error}</p>
+                    `);
+                }
+                
+            } catch (error) {
+                updateResults(`
+                    <h3>❌ Agent Chat Test Failed</h3>
+                    <p>Error: ${error.message}</p>
+                `);
+            } finally {
+                hideLoading('chat-loading');
+            }
+        }
+    </script>
+</body>
+</html>

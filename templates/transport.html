@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transport Planning - OrganMatch AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Bricolage Grotesque', sans-serif;
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        /* Header */
+        .header {
+            background: #1e4d2b;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            background: #e74c3c;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #1e4d2b;
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+
+        /* Transport Grid */
+        .transport-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .transport-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Map Container */
+        .map-container {
+            height: 400px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        #transport-map {
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Flight List */
+        .flight-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .flight-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #007bff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .flight-item:hover {
+            background: #e3f2fd;
+            transform: translateX(5px);
+        }
+
+        .flight-item.selected {
+            border-left-color: #28a745;
+            background: #e8f5e8;
+        }
+
+        .flight-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .flight-number {
+            font-weight: 700;
+            color: #1e4d2b;
+            font-size: 1.1em;
+        }
+
+        .flight-cost {
+            background: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .flight-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        /* Weather Panel */
+        .weather-panel {
+            grid-column: 1 / -1;
+        }
+
+        .weather-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .weather-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .weather-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .weather-location {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .weather-condition {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        /* Action Buttons */
+        .action-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+            font-family: 'Bricolage Grotesque', sans-serif;
+        }
+
+        .btn-primary {
+            background: #1e4d2b;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2d5a35;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .transport-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .notification.info {
+            background: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-section">
+            <div class="logo-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="9" y="2" width="6" height="20" fill="white" />
+                    <rect x="2" y="9" width="20" height="6" fill="white" />
+                </svg>
+            </div>
+            <div class="logo-text">OrganMatch</div>
+        </div>
+        <nav class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/dashboard" class="nav-link">Dashboard</a>
+            <a href="/viability" class="nav-link">Viability</a>
+            <a href="/matching" class="nav-link">Matching</a>
+            <a href="/transport" class="nav-link active">Transport</a>
+            <a href="/analytics" class="nav-link">Analytics</a>
+            <a href="/assistant" class="nav-link">Assistant</a>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <h1 class="page-title">🚁 Transport Planning</h1>
+        <p class="page-subtitle">Plan and coordinate organ transport with real-time flight and weather data</p>
+
+        <!-- Transport Grid -->
+        <div class="transport-grid">
+            <!-- Map Panel -->
+            <div class="transport-card">
+                <h3 class="card-title">
+                    <i class="fas fa-map"></i>
+                    Transport Route
+                </h3>
+                <div class="map-container">
+                    <div id="transport-map"></div>
+                </div>
+                <div class="route-info" id="route-info">
+                    <p><strong>Route:</strong> <span id="route-text">Select origin and destination</span></p>
+                    <p><strong>Distance:</strong> <span id="distance-text">--</span></p>
+                    <p><strong>Est. Time:</strong> <span id="time-text">--</span></p>
+                </div>
+            </div>
+
+            <!-- Flight Options -->
+            <div class="transport-card">
+                <h3 class="card-title">
+                    <i class="fas fa-plane"></i>
+                    Available Flights
+                </h3>
+                <div class="flight-list" id="flight-list">
+                    <!-- Flights will be populated here -->
+                </div>
+            </div>
+
+            <!-- Weather Conditions -->
+            <div class="transport-card weather-panel">
+                <h3 class="card-title">
+                    <i class="fas fa-cloud-sun"></i>
+                    Weather Conditions
+                </h3>
+                <div class="weather-grid" id="weather-grid">
+                    <!-- Weather will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Panel -->
+        <div class="action-panel">
+            <h3>Transport Actions</h3>
+            <p style="margin: 15px 0; color: #6c757d;">Select a flight and confirm transport arrangements</p>
+            <button class="btn btn-primary" onclick="bookSelectedFlight()">
+                <i class="fas fa-check"></i> Book Selected Flight
+            </button>
+            <button class="btn btn-success" onclick="notifyTeams()">
+                <i class="fas fa-bell"></i> Notify Medical Teams
+            </button>
+            <button class="btn btn-secondary" onclick="generateReport()">
+                <i class="fas fa-file-alt"></i> Generate Transport Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Global variables
+        let map;
+        let selectedFlight = null;
+        let organId = new URLSearchParams(window.location.search).get('organ');
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMap();
+            loadFlights();
+            loadWeather();
+            
+            if (organId) {
+                loadOrganDetails(organId);
+            }
+        });
+
+        // Initialize map
+        function initializeMap() {
+            map = L.map('transport-map').setView([39.8283, -98.5795], 4);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Add sample route
+            addSampleRoute();
+        }
+
+        function addSampleRoute() {
+            // Sample hospitals
+            const hospitals = [
+                { name: "Boston Medical", lat: 42.3601, lng: -71.0589 },
+                { name: "UCLA Medical", lat: 34.0522, lng: -118.2437 }
+            ];
+
+            hospitals.forEach(hospital => {
+                L.marker([hospital.lat, hospital.lng])
+                    .addTo(map)
+                    .bindPopup(hospital.name);
+            });
+
+            // Flight route
+            const route = [[42.3601, -71.0589], [34.0522, -118.2437]];
+            L.polyline(route, {
+                color: '#007bff',
+                weight: 3,
+                opacity: 0.7,
+                dashArray: '10, 10'
+            }).addTo(map);
+
+            // Update route info
+            document.getElementById('route-text').textContent = 'Boston → Los Angeles';
+            document.getElementById('distance-text').textContent = '2,600 miles';
+            document.getElementById('time-text').textContent = '6.5 hours';
+        }
+
+        // Load flights
+        async function loadFlights() {
+            try {
+                const response = await fetch('/api/search-flights', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        origin: 'BOS',
+                        destination: 'LAX',
+                        date: new Date().toISOString().split('T')[0]
+                    })
+                });
+
+                const data = await response.json();
+                renderFlights(data.flights || []);
+
+            } catch (error) {
+                console.error('Error loading flights:', error);
+                showNotification('Error loading flight data', 'error');
+            }
+        }
+
+        function renderFlights(flights) {
+            const container = document.getElementById('flight-list');
+            container.innerHTML = '';
+
+            // Sample flights if none provided
+            const sampleFlights = flights.length > 0 ? flights : [
+                {
+                    flight: 'AA1234',
+                    departure: '14:30',
+                    arrival: '18:45',
+                    duration: '6h 15m',
+                    aircraft: 'Boeing 737',
+                    price: '$1,200'
+                },
+                {
+                    flight: 'DL5678',
+                    departure: '16:00',
+                    arrival: '20:30',
+                    duration: '6h 30m',
+                    aircraft: 'Airbus A320',
+                    price: '$1,050'
+                },
+                {
+                    flight: 'UA9012',
+                    departure: '18:15',
+                    arrival: '22:45',
+                    duration: '6h 30m',
+                    aircraft: 'Boeing 757',
+                    price: '$1,350'
+                }
+            ];
+
+            sampleFlights.forEach((flight, index) => {
+                const flightElement = document.createElement('div');
+                flightElement.className = 'flight-item';
+                flightElement.onclick = () => selectFlight(flight, flightElement);
+                
+                flightElement.innerHTML = `
+                    <div class="flight-header">
+                        <div class="flight-number">${flight.flight}</div>
+                        <div class="flight-cost">${flight.price || '$1,200'}</div>
+                    </div>
+                    <div class="flight-details">
+                        <div><i class="fas fa-plane-departure"></i> ${flight.departure}</div>
+                        <div><i class="fas fa-plane-arrival"></i> ${flight.arrival}</div>
+                        <div><i class="fas fa-clock"></i> ${flight.duration}</div>
+                        <div><i class="fas fa-plane"></i> ${flight.aircraft || 'Boeing 737'}</div>
+                    </div>
+                `;
+                
+                container.appendChild(flightElement);
+            });
+        }
+
+        function selectFlight(flight, element) {
+            // Remove previous selection
+            document.querySelectorAll('.flight-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Select current flight
+            element.classList.add('selected');
+            selectedFlight = flight;
+            
+            showNotification(`Selected flight ${flight.flight}`, 'info');
+        }
+
+        // Load weather
+        async function loadWeather() {
+            const weatherData = [
+                { location: 'Boston (Origin)', condition: 'Clear', temperature: '22°C', icon: '☀️' },
+                { location: 'En Route', condition: 'Partly Cloudy', temperature: '18°C', icon: '⛅' },
+                { location: 'Los Angeles (Destination)', condition: 'Clear', temperature: '25°C', icon: '☀️' }
+            ];
+
+            const container = document.getElementById('weather-grid');
+            container.innerHTML = '';
+
+            weatherData.forEach(weather => {
+                const weatherElement = document.createElement('div');
+                weatherElement.className = 'weather-item';
+                
+                weatherElement.innerHTML = `
+                    <div class="weather-icon">${weather.icon}</div>
+                    <div class="weather-location">${weather.location}</div>
+                    <div class="weather-condition">${weather.condition}</div>
+                    <div class="weather-condition">${weather.temperature}</div>
+                `;
+                
+                container.appendChild(weatherElement);
+            });
+        }
+
+        // Load organ details
+        async function loadOrganDetails(organId) {
+            try {
+                const response = await fetch(`/api/organ/${organId}`);
+                const organ = await response.json();
+                
+                // Update page title with organ info
+                document.querySelector('.page-title').innerHTML = 
+                    `🚁 Transport Planning - ${organ.type} ${organ.id}`;
+                
+            } catch (error) {
+                console.error('Error loading organ details:', error);
+            }
+        }
+
+        // Action functions
+        function bookSelectedFlight() {
+            if (!selectedFlight) {
+                showNotification('Please select a flight first', 'error');
+                return;
+            }
+            
+            showNotification(`Booking flight ${selectedFlight.flight}...`, 'info');
+            
+            // Simulate booking
+            setTimeout(() => {
+                showNotification(`Flight ${selectedFlight.flight} booked successfully!`, 'success');
+            }, 2000);
+        }
+
+        function notifyTeams() {
+            showNotification('Medical teams notified of transport schedule', 'success');
+        }
+
+        function generateReport() {
+            showNotification('Transport report generated and sent to stakeholders', 'success');
+        }
+
+        // Utility functions
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+    </script>
+</body>
+</html>

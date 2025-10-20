@@ -1,0 +1,1281 @@
+t="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrganMatch AI - Organ Logistics Platform</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 2em;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        .app-name {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .status-indicators {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .live-clock {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fa;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .region-badge {
+            background: #007bff;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 8px 15px;
+            border-radius: 20px;
+            transition: background 0.3s ease;
+        }
+
+        .user-profile:hover {
+            background: rgba(0, 123, 255, 0.1);
+        }
+
+        /* Main Container */
+        .main-container {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f3f4;
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .panel-icon {
+            font-size: 1.5em;
+        }
+
+        /* Organ Viability Panel */
+        .organ-viability {
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        .organ-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .organ-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 5px solid #28a745;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .organ-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #28a745, #20c997);
+        }
+
+        .organ-card.warning {
+            border-left-color: #ffc107;
+        }
+
+        .organ-card.warning::before {
+            background: linear-gradient(90deg, #ffc107, #fd7e14);
+        }
+
+        .organ-card.critical {
+            border-left-color: #dc3545;
+        }
+
+        .organ-card.critical::before {
+            background: linear-gradient(90deg, #dc3545, #e83e8c);
+        }
+
+        .organ-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .organ-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .organ-type {
+            font-weight: 700;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .organ-status {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .time-remaining {
+            font-weight: 600;
+            margin-top: 8px;
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            font-size: 0.85em;
+        }
+
+        /* Transport & Flight Panel */
+        .transport-panel {
+            grid-column: 2;
+            grid-row: 1 / 3;
+        }
+
+        .map-container {
+            height: 300px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        #transport-map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .flight-drawer {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .flight-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .flight-item:hover {
+            background: #e3f2fd;
+            transform: translateX(5px);
+        }
+
+        .flight-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .flight-number {
+            font-weight: 700;
+            color: #1976d2;
+        }
+
+        .flight-time {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .weather-icon {
+            font-size: 1.2em;
+            margin-left: 10px;
+        }
+
+        /* Recipient Matching Panel */
+        .recipient-panel {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .recipient-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .recipient-card {
+            background: linear-gradient(135deg, #fff, #f8f9fa);
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 4px solid #007bff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .recipient-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .recipient-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .recipient-id {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .match-score {
+            background: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .recipient-details {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-2px);
+        }
+
+        /* Metrics Panel */
+        .metrics-panel {
+            grid-column: 1 / 3;
+            grid-row: 3;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .metric-icon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5em;
+            opacity: 0.3;
+        }
+
+        /* Agent Chat Widget */
+        .agent-chat {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 350px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            transform: translateY(calc(100% - 60px));
+        }
+
+        .agent-chat.expanded {
+            transform: translateY(0);
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 20px 20px 0 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .chat-body {
+            height: 300px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding-right: 10px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 15px;
+            max-width: 80%;
+        }
+
+        .message.user {
+            background: #e3f2fd;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message.agent {
+            background: #f1f3f4;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            font-size: 0.9em;
+        }
+
+        .chat-input button {
+            padding: 12px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .chat-input button:hover {
+            background: #0056b3;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f3f4;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+            }
+
+            .transport-panel {
+                grid-column: 1;
+                grid-row: auto;
+            }
+
+            .metrics-panel {
+                grid-column: 1;
+            }
+
+            .agent-chat {
+                width: calc(100% - 40px);
+                right: 20px;
+                left: 20px;
+            }
+
+            .main-container {
+                padding: 20px;
+            }
+        }
+
+        /* Loading States */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="logo-section">
+            <div class="logo">🏥</div>
+            <div class="app-name">OrganMatch AI</div>
+        </div>
+        
+        <div class="status-indicators">
+            <div class="live-clock">
+                <i class="fas fa-clock"></i>
+                <span id="current-time">--:--:--</span>
+            </div>
+            <div class="region-badge" id="region-badge">US-East-1</div>
+            <div class="user-profile">
+                <i class="fas fa-user-circle" style="font-size: 1.5em;"></i>
+                <span>Dr. Smith</span>
+                <i class="fas fa-cog"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Organ Viability Panel -->
+            <div class="panel organ-viability">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span class="panel-icon">🫀</span>
+                        Available Organs
+                    </div>
+                </div>
+                <div class="organ-grid" id="organ-grid">
+                    <!-- Organs will be populated here -->
+                </div>
+            </div>
+
+            <!-- Transport & Flight Panel -->
+            <div class="panel transport-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span class="panel-icon">🚑</span>
+                        Transport & Flights
+                    </div>
+                </div>
+                <div class="map-container">
+                    <div id="transport-map"></div>
+                </div>
+                <div class="flight-drawer" id="flight-drawer">
+                    <!-- Flights will be populated here -->
+                </div>
+            </div>
+
+            <!-- Recipient Matching Panel -->
+            <div class="panel recipient-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span class="panel-icon">🏥</span>
+                        Recipient Matches
+                    </div>
+                </div>
+                <div class="recipient-list" id="recipient-list">
+                    <!-- Recipients will be populated here -->
+                </div>
+            </div>
+
+            <!-- Metrics Panel -->
+            <div class="panel metrics-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span class="panel-icon">📊</span>
+                        Today's Metrics
+                    </div>
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <i class="fas fa-heart metric-icon"></i>
+                        <div class="metric-value" id="successful-matches">12</div>
+                        <div class="metric-label">Successful Matches</div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-clock metric-icon"></i>
+                        <div class="metric-value" id="avg-transport-time">4.2h</div>
+                        <div class="metric-label">Avg Transport Time</div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-shield-alt metric-icon"></i>
+                        <div class="metric-value" id="expiry-avoidance">94%</div>
+                        <div class="metric-label">Expiry Avoidance</div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-plane metric-icon"></i>
+                        <div class="metric-value" id="active-transports">7</div>
+                        <div class="metric-label">Active Transports</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agent Chat Widget -->
+    <div class="agent-chat" id="agent-chat">
+        <div class="chat-header" onclick="toggleChat()">
+            <div class="chat-title">
+                <i class="fas fa-robot"></i>
+                <span>OrganMatch AI Assistant</span>
+            </div>
+            <i class="fas fa-chevron-up" id="chat-toggle-icon"></i>
+        </div>
+        <div class="chat-body">
+            <div class="chat-messages" id="chat-messages">
+                <div class="message agent">
+                    <strong>OrganMatch AI:</strong> Hello! I'm here to help with organ logistics. Ask me about viability, flights, weather, or matching.
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chat-input" placeholder="Ask about organ logistics..." onkeypress="handleChatKeyPress(event)">
+                <button onclick="sendChatMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Organ Detail Modal -->
+    <div class="modal" id="organ-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-organ-title">Organ Details</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modal-organ-content">
+                <!-- Organ details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Global variables
+        let map;
+        let chatExpanded = false;
+        let organs = [];
+        let recipients = [];
+        let flights = [];
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeClock();
+            initializeMap();
+            loadDashboardData();
+            setInterval(updateClock, 1000);
+            setInterval(loadDashboardData, 30000); // Refresh every 30 seconds
+        });
+
+        // Clock functionality
+        function initializeClock() {
+            updateClock();
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour12: false,
+                timeZone: 'America/New_York'
+            });
+            document.getElementById('current-time').textContent = timeString;
+        }
+
+        // Map initialization
+        function initializeMap() {
+            map = L.map('transport-map').setView([39.8283, -98.5795], 4); // Center of US
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Add sample markers
+            addHospitalMarkers();
+            addFlightRoutes();
+        }
+
+        function addHospitalMarkers() {
+            const hospitals = [
+                { name: "Boston Medical Center", lat: 42.3601, lng: -71.0589, beds: 15, readiness: 95 },
+                { name: "UCLA Medical Center", lat: 34.0522, lng: -118.2437, beds: 8, readiness: 87 },
+                { name: "Mayo Clinic", lat: 44.0225, lng: -92.4699, beds: 12, readiness: 98 },
+                { name: "Johns Hopkins", lat: 39.2904, lng: -76.6122, beds: 20, readiness: 92 }
+            ];
+
+            hospitals.forEach(hospital => {
+                const color = hospital.readiness > 90 ? 'green' : hospital.readiness > 80 ? 'orange' : 'red';
+                
+                L.circleMarker([hospital.lat, hospital.lng], {
+                    radius: 8,
+                    fillColor: color,
+                    color: '#fff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map)
+                .bindPopup(`
+                    <strong>${hospital.name}</strong><br>
+                    ICU Beds: ${hospital.beds}<br>
+                    Readiness: ${hospital.readiness}%
+                `);
+            });
+        }
+
+        function addFlightRoutes() {
+            // Sample flight route
+            const route = [
+                [42.3601, -71.0589], // Boston
+                [34.0522, -118.2437]  // LA
+            ];
+
+            L.polyline(route, {
+                color: '#007bff',
+                weight: 3,
+                opacity: 0.7,
+                dashArray: '10, 10'
+            }).addTo(map);
+        }
+
+        // Data loading functions
+        async function loadDashboardData() {
+            try {
+                await Promise.all([
+                    loadOrgans(),
+                    loadRecipients(),
+                    loadFlights(),
+                    loadMetrics()
+                ]);
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        async function loadOrgans() {
+            // Simulate organ data
+            organs = [
+                {
+                    id: 'H001',
+                    type: 'Heart',
+                    icon: '🫀',
+                    status: 'safe',
+                    timeRemaining: '4.2h',
+                    donorId: 'D123',
+                    conditionScore: 92,
+                    location: 'Boston Medical'
+                },
+                {
+                    id: 'L002',
+                    type: 'Liver',
+                    icon: '🫁',
+                    status: 'warning',
+                    timeRemaining: '8.7h',
+                    donorId: 'D124',
+                    conditionScore: 78,
+                    location: 'Mayo Clinic'
+                },
+                {
+                    id: 'K003',
+                    type: 'Kidney',
+                    icon: '🫘',
+                    status: 'critical',
+                    timeRemaining: '1.3h',
+                    donorId: 'D125',
+                    conditionScore: 65,
+                    location: 'Johns Hopkins'
+                }
+            ];
+
+            renderOrgans();
+        }
+
+        function renderOrgans() {
+            const organGrid = document.getElementById('organ-grid');
+            organGrid.innerHTML = '';
+
+            organs.forEach(organ => {
+                const organCard = document.createElement('div');
+                organCard.className = `organ-card ${organ.status}`;
+                organCard.onclick = () => showOrganDetails(organ);
+                
+                organCard.innerHTML = `
+                    <div class="organ-icon">${organ.icon}</div>
+                    <div class="organ-type">${organ.type}</div>
+                    <div class="organ-status">Donor: ${organ.donorId}</div>
+                    <div class="time-remaining">${organ.timeRemaining} remaining</div>
+                `;
+
+                organGrid.appendChild(organCard);
+            });
+        }
+
+        async function loadRecipients() {
+            recipients = [
+                {
+                    id: 'R456',
+                    name: 'Patient Alpha',
+                    bloodType: 'O+',
+                    matchScore: 94,
+                    urgency: 'High',
+                    hospital: 'UCLA Medical',
+                    waitTime: '127 days'
+                },
+                {
+                    id: 'R457',
+                    name: 'Patient Beta',
+                    bloodType: 'A+',
+                    matchScore: 87,
+                    urgency: 'Medium',
+                    hospital: 'Mayo Clinic',
+                    waitTime: '89 days'
+                },
+                {
+                    id: 'R458',
+                    name: 'Patient Gamma',
+                    bloodType: 'B+',
+                    matchScore: 82,
+                    urgency: 'Medium',
+                    hospital: 'Johns Hopkins',
+                    waitTime: '156 days'
+                }
+            ];
+
+            renderRecipients();
+        }
+
+        function renderRecipients() {
+            const recipientList = document.getElementById('recipient-list');
+            recipientList.innerHTML = '';
+
+            recipients.forEach(recipient => {
+                const recipientCard = document.createElement('div');
+                recipientCard.className = 'recipient-card';
+                
+                recipientCard.innerHTML = `
+                    <div class="recipient-header">
+                        <div class="recipient-id">${recipient.id}</div>
+                        <div class="match-score">${recipient.matchScore}% Match</div>
+                    </div>
+                    <div class="recipient-details">
+                        ${recipient.bloodType} • ${recipient.urgency} Priority • ${recipient.hospital}<br>
+                        Wait time: ${recipient.waitTime}
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="notifyHospital('${recipient.id}')">
+                            <i class="fas fa-bell"></i> Notify
+                        </button>
+                        <button class="btn btn-secondary" onclick="reserveOrgan('${recipient.id}')">
+                            <i class="fas fa-lock"></i> Reserve
+                        </button>
+                    </div>
+                `;
+
+                recipientList.appendChild(recipientCard);
+            });
+        }
+
+        async function loadFlights() {
+            flights = [
+                {
+                    number: 'AA1234',
+                    route: 'BOS → LAX',
+                    departure: '14:30',
+                    arrival: '18:45',
+                    duration: '6h 15m',
+                    weather: '☀️'
+                },
+                {
+                    number: 'DL5678',
+                    route: 'BOS → LAX',
+                    departure: '16:00',
+                    arrival: '20:30',
+                    duration: '6h 30m',
+                    weather: '⛅'
+                },
+                {
+                    number: 'UA9012',
+                    route: 'BOS → LAX',
+                    departure: '18:15',
+                    arrival: '22:45',
+                    duration: '6h 30m',
+                    weather: '🌦️'
+                }
+            ];
+
+            renderFlights();
+        }
+
+        function renderFlights() {
+            const flightDrawer = document.getElementById('flight-drawer');
+            flightDrawer.innerHTML = '';
+
+            flights.forEach(flight => {
+                const flightItem = document.createElement('div');
+                flightItem.className = 'flight-item';
+                flightItem.onclick = () => selectFlight(flight);
+                
+                flightItem.innerHTML = `
+                    <div class="flight-info">
+                        <div class="flight-number">${flight.number}</div>
+                        <div class="flight-time">${flight.departure} - ${flight.arrival} (${flight.duration})</div>
+                    </div>
+                    <div class="weather-icon">${flight.weather}</div>
+                `;
+
+                flightDrawer.appendChild(flightItem);
+            });
+        }
+
+        async function loadMetrics() {
+            // Simulate real-time metrics
+            const metrics = {
+                successfulMatches: Math.floor(Math.random() * 5) + 10,
+                avgTransportTime: (Math.random() * 2 + 3).toFixed(1) + 'h',
+                expiryAvoidance: Math.floor(Math.random() * 10) + 90 + '%',
+                activeTransports: Math.floor(Math.random() * 5) + 5
+            };
+
+            document.getElementById('successful-matches').textContent = metrics.successfulMatches;
+            document.getElementById('avg-transport-time').textContent = metrics.avgTransportTime;
+            document.getElementById('expiry-avoidance').textContent = metrics.expiryAvoidance;
+            document.getElementById('active-transports').textContent = metrics.activeTransports;
+        }
+
+        // Modal functions
+        function showOrganDetails(organ) {
+            const modal = document.getElementById('organ-modal');
+            const title = document.getElementById('modal-organ-title');
+            const content = document.getElementById('modal-organ-content');
+
+            title.textContent = `${organ.type} - ${organ.id}`;
+            
+            content.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <h4>Donor Information</h4>
+                        <p><strong>Donor ID:</strong> ${organ.donorId}</p>
+                        <p><strong>Blood Type:</strong> O+</p>
+                        <p><strong>Age:</strong> 34 years</p>
+                        <p><strong>HLA Type:</strong> A2, B44, DR7</p>
+                    </div>
+                    <div>
+                        <h4>Organ Status</h4>
+                        <p><strong>Condition Score:</strong> ${organ.conditionScore}/100</p>
+                        <p><strong>Time Remaining:</strong> ${organ.timeRemaining}</p>
+                        <p><strong>Current Location:</strong> ${organ.location}</p>
+                        <p><strong>Temperature:</strong> 4°C</p>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4>Available Actions</h4>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="assignRecipient('${organ.id}')">
+                            <i class="fas fa-user-plus"></i> Assign Recipient
+                        </button>
+                        <button class="btn btn-primary" onclick="bookFlight('${organ.id}')">
+                            <i class="fas fa-plane"></i> Book Flight
+                        </button>
+                        <button class="btn btn-secondary" onclick="viewWeather('${organ.id}')">
+                            <i class="fas fa-cloud-sun"></i> View Weather
+                        </button>
+                        <button class="btn btn-secondary" onclick="checkViability('${organ.id}')">
+                            <i class="fas fa-heartbeat"></i> Check Viability
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('organ-modal').style.display = 'none';
+        }
+
+        // Action functions
+        function notifyHospital(recipientId) {
+            showNotification(`Hospital notified for recipient ${recipientId}`, 'success');
+        }
+
+        function reserveOrgan(recipientId) {
+            showNotification(`Organ reserved for recipient ${recipientId}`, 'success');
+        }
+
+        function selectFlight(flight) {
+            showNotification(`Selected flight ${flight.number}`, 'info');
+        }
+
+        function assignRecipient(organId) {
+            showNotification(`Recipient assignment initiated for organ ${organId}`, 'success');
+            closeModal();
+        }
+
+        function bookFlight(organId) {
+            showNotification(`Flight booking initiated for organ ${organId}`, 'success');
+            closeModal();
+        }
+
+        function viewWeather(organId) {
+            showNotification(`Weather information displayed for organ ${organId}`, 'info');
+        }
+
+        function checkViability(organId) {
+            showNotification(`Viability check initiated for organ ${organId}`, 'info');
+        }
+
+        // Chat functions
+        function toggleChat() {
+            const chatWidget = document.getElementById('agent-chat');
+            const toggleIcon = document.getElementById('chat-toggle-icon');
+            
+            chatExpanded = !chatExpanded;
+            
+            if (chatExpanded) {
+                chatWidget.classList.add('expanded');
+                toggleIcon.className = 'fas fa-chevron-down';
+            } else {
+                chatWidget.classList.remove('expanded');
+                toggleIcon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Add user message
+            addChatMessage(message, 'user');
+            input.value = '';
+
+            // Show typing indicator
+            addChatMessage('Thinking...', 'agent', true);
+
+            try {
+                // Send to backend
+                const response = await fetch('/api/agent-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const result = await response.json();
+
+                // Remove typing indicator
+                const messages = document.getElementById('chat-messages');
+                messages.removeChild(messages.lastChild);
+
+                // Add agent response
+                if (result.success) {
+                    addChatMessage(result.response, 'agent');
+                } else {
+                    addChatMessage('Sorry, I encountered an error. Please try again.', 'agent');
+                }
+
+            } catch (error) {
+                // Remove typing indicator
+                const messages = document.getElementById('chat-messages');
+                messages.removeChild(messages.lastChild);
+                
+                addChatMessage('Sorry, I\'m having trouble connecting. Please try again.', 'agent');
+            }
+        }
+
+        function addChatMessage(text, sender, isTyping = false) {
+            const messages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            if (isTyping) {
+                messageDiv.innerHTML = `<strong>OrganMatch AI:</strong> <span class="loading"></span> ${text}`;
+            } else if (sender === 'agent') {
+                messageDiv.innerHTML = `<strong>OrganMatch AI:</strong> ${text}`;
+            } else {
+                messageDiv.textContent = text;
+            }
+
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#007bff'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                z-index: 3000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Add CSS for notification animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('organ-modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>

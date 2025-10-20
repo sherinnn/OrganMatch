@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pythonlibs/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Flask
+instance/
+.webassets-cache
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# UV
+uv.lock

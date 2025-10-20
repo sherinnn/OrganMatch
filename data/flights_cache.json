@@ -1,0 +1,59 @@
+{
+  "LAX-BOS": [
+    {
+      "Airline": "Delta Air Lines",
+      "FlightNumber": "DL639",
+      "DepartureTime": "07:00, Oct 20",
+      "ArrivalTime": "15:30, Oct 20",
+      "DurationMinutes": 390
+    },
+    {
+      "Airline": "JetBlue",
+      "FlightNumber": "B6288",
+      "DepartureTime": "09:00, Oct 20",
+      "ArrivalTime": "17:46, Oct 20",
+      "DurationMinutes": 406
+    }
+  ],
+  "LAX-JFK": [
+    {
+      "Airline": "American Airlines",
+      "FlightNumber": "AA12",
+      "DepartureTime": "08:19, Oct 20",
+      "ArrivalTime": "16:55, Oct 20",
+      "DurationMinutes": 496
+    },
+    {
+      "Airline": "Delta Air Lines",
+      "FlightNumber": "DL639",
+      "DepartureTime": "07:00, Oct 20",
+      "ArrivalTime": "15:30, Oct 20",
+      "DurationMinutes": 510
+    }
+  ],
+  "SFO-LAX": [
+    {
+      "Airline": "United Airlines",
+      "FlightNumber": "UA175",
+      "DepartureTime": "10:15, Oct 20",
+      "ArrivalTime": "11:45, Oct 20",
+      "DurationMinutes": 90
+    },
+    {
+      "Airline": "Alaska Airlines",
+      "FlightNumber": "AS432",
+      "DepartureTime": "14:00, Oct 20",
+      "ArrivalTime": "15:30, Oct 20",
+      "DurationMinutes": 90
+    }
+  ],
+  "SFO-BOS": [
+    {
+      "Airline": "American Airlines",
+      "FlightNumber": "AA234",
+      "DepartureTime": "06:30, Oct 20",
+      "ArrivalTime": "15:30, Oct 20",
+      "DurationMinutes": 540
+    }
+  ]
+}

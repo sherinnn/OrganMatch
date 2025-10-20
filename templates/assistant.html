@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant - OrganMatch AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Bricolage Grotesque', sans-serif;
+            background: #f8f9fa;
+            color: #2c3e50;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: #1e4d2b;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            background: #e74c3c;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text {
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Main Chat Container */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            max-width: 1200px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .chat-sidebar {
+            width: 300px;
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 25px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .sidebar-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1e4d2b;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-subtitle {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .quick-actions {
+            padding: 20px;
+            flex: 1;
+        }
+
+        .action-category {
+            margin-bottom: 25px;
+        }
+
+        .category-title {
+            font-size: 1em;
+            font-weight: 600;
+            color: #1e4d2b;
+            margin-bottom: 10px;
+        }
+
+        .action-button {
+            display: block;
+            width: 100%;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Bricolage Grotesque', sans-serif;
+            font-size: 0.9em;
+        }
+
+        .action-button:hover {
+            border-color: #1e4d2b;
+            background: #f8fff8;
+            transform: translateX(5px);
+        }
+
+        /* Main Chat Area */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 25px;
+            border-bottom: 1px solid #e9ecef;
+            background: linear-gradient(135deg, #1e4d2b, #2d5a35);
+            color: white;
+        }
+
+        .chat-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .chat-subtitle {
+            opacity: 0.9;
+            font-size: 0.95em;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4CAF50;
+        }
+
+        /* Messages Area */
+        .messages-container {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        .message.assistant .message-avatar {
+            background: #1e4d2b;
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: #007bff;
+            color: white;
+        }
+
+        .message-content {
+            flex: 1;
+            max-width: 70%;
+        }
+
+        .message-bubble {
+            padding: 15px 20px;
+            border-radius: 18px;
+            line-height: 1.6;
+        }
+
+        /* Structured message formatting */
+        .message-bubble h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #1e4d2b;
+        }
+
+        .message-bubble h4 {
+            margin: 15px 0 8px 0;
+            font-size: 1em;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .message-bubble ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .message-bubble li {
+            margin: 5px 0;
+            line-height: 1.5;
+        }
+
+        .message-bubble p {
+            margin: 10px 0;
+        }
+
+        .message-bubble .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin: 2px 4px;
+        }
+
+        .message-bubble .status-viable {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .message-bubble .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .message-bubble .status-critical {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .message-bubble .metric-value {
+            font-weight: 600;
+            color: #1e4d2b;
+        }
+
+        .message.assistant .message-bubble {
+            background: #f1f3f4;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message.user .message-bubble {
+            background: #007bff;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .message.user .message-time {
+            text-align: right;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Input Area */
+        .chat-input-container {
+            padding: 25px;
+            border-top: 1px solid #e9ecef;
+            background: #f8f9fa;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 2px solid #e9ecef;
+            border-radius: 20px;
+            padding: 15px 20px;
+            font-size: 1em;
+            font-family: 'Bricolage Grotesque', sans-serif;
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .chat-input:focus {
+            border-color: #1e4d2b;
+        }
+
+        .send-button {
+            background: #1e4d2b;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2em;
+        }
+
+        .send-button:hover {
+            background: #2d5a35;
+            transform: scale(1.05);
+        }
+
+        .send-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: none;
+            padding: 15px 20px;
+            background: #f1f3f4;
+            border-radius: 18px;
+            border-bottom-left-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #666;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.5;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .chat-container {
+                margin: 20px;
+                flex-direction: column;
+            }
+            
+            .chat-sidebar {
+                width: 100%;
+                max-height: 200px;
+                overflow-y: auto;
+            }
+            
+            .messages-container {
+                max-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-section">
+            <div class="logo-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="9" y="2" width="6" height="20" fill="white" />
+                    <rect x="2" y="9" width="20" height="6" fill="white" />
+                </svg>
+            </div>
+            <div class="logo-text">OrganMatch</div>
+        </div>
+        <nav class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/dashboard" class="nav-link">Dashboard</a>
+            <a href="/viability" class="nav-link">Viability</a>
+            <a href="/matching" class="nav-link">Matching</a>
+            <a href="/transport" class="nav-link">Transport</a>
+            <a href="/analytics" class="nav-link">Analytics</a>
+            <a href="/assistant" class="nav-link active">Assistant</a>
+        </nav>
+    </header>
+
+    <!-- Main Chat Container -->
+    <div class="chat-container">
+        <!-- Sidebar -->
+        <div class="chat-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">AI Assistant</div>
+                <div class="sidebar-subtitle">Quick actions and common queries</div>
+            </div>
+            
+            <div class="quick-actions">
+                <div class="action-category">
+                    <div class="category-title">Organ Status</div>
+                    <button class="action-button" onclick="sendQuickMessage('Show me the current organ inventory with viability status')">
+                        Available Organs
+                    </button>
+                    <button class="action-button" onclick="sendQuickMessage('Analyze all critical organs and provide recommendations')">
+                        Critical Organs
+                    </button>
+                    <button class="action-button" onclick="sendQuickMessage('Create a timeline showing when organs will expire')">
+                        Expiry Timeline
+                    </button>
+                </div>
+                
+                <div class="action-category">
+                    <div class="category-title">Transport</div>
+                    <button class="action-button" onclick="sendQuickMessage('Show all active organ transports with status and ETA')">
+                        Active Transports
+                    </button>
+                    <button class="action-button" onclick="sendQuickMessage('Find urgent flights from Boston to Los Angeles for heart transport')">
+                        Flight Search
+                    </button>
+                    <button class="action-button" onclick="sendQuickMessage('Check weather conditions affecting organ transport routes')">
+                        Weather Check
+                    </button>
+                </div>
+                
+                <div class="action-category">
+                    <div class="category-title">Matching</div>
+                    <button class="action-button" onclick="sendQuickMessage('Show top recipient matches with compatibility scores and urgency levels')">
+                        Top Matches
+                    </button>
+                    <button class="action-button" onclick="sendQuickMessage('Analyze compatibility factors and provide matching recommendations')">
+                        Compatibility Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-main">
+            <div class="chat-header">
+                <div class="chat-title">OrganMatch AI Assistant</div>
+                <div class="chat-subtitle">Your intelligent partner for organ logistics</div>
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span id="status-text">Online & Ready</span>
+                </div>
+            </div>
+
+            <div class="messages-container" id="messages-container">
+                <div class="message assistant">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <h3>Welcome to OrganMatch AI Assistant</h3>
+                            <p>I'm here to help you with critical organ logistics operations. I can assist with:</p>
+                            <ul>
+                                <li><strong>Organ Viability Assessment</strong> - Real-time condition monitoring</li>
+                                <li><strong>Donor-Recipient Matching</strong> - Compatibility analysis</li>
+                                <li><strong>Transport Logistics</strong> - Flight booking and weather monitoring</li>
+                                <li><strong>System Monitoring</strong> - Status updates and alerts</li>
+                            </ul>
+                            <p>What would you like to know about today?</p>
+                        </div>
+                        <div class="message-time">Just now</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="typing-indicator" id="typing-indicator">
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        class="chat-input" 
+                        id="chat-input" 
+                        placeholder="Ask about organ logistics, viability, matching, or transport..."
+                        onkeypress="handleKeyPress(event)"
+                    ></textarea>
+                    <button class="send-button" id="send-button" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let isTyping = false;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkSystemStatus();
+        });
+
+        // Handle key press in input
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // Send message
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message || isTyping) return;
+            
+            // Add user message
+            addMessage(message, 'user');
+            input.value = '';
+            
+            // Show typing indicator
+            showTyping();
+            
+            try {
+                const response = await fetch('/api/agent-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const result = await response.json();
+                
+                // Hide typing indicator
+                hideTyping();
+                
+                if (result.success) {
+                    addMessage(result.response, 'assistant');
+                } else {
+                    addMessage('Sorry, I encountered an error. Please try again.', 'assistant');
+                }
+                
+            } catch (error) {
+                hideTyping();
+                addMessage('Sorry, I\'m having trouble connecting. Please check your connection and try again.', 'assistant');
+            }
+        }
+
+        // Send quick message
+        function sendQuickMessage(message) {
+            document.getElementById('chat-input').value = message;
+            sendMessage();
+        }
+
+        // Add message to chat
+        function addMessage(text, sender) {
+            const messagesContainer = document.getElementById('messages-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const avatar = sender === 'assistant' ? '🤖' : '👤';
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            // Format assistant messages for better structure
+            let formattedText = text;
+            if (sender === 'assistant') {
+                formattedText = formatAssistantMessage(text);
+            }
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">
+                    <div class="message-bubble">${formattedText}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            
+            // Smooth scroll to the new message instead of jumping
+            setTimeout(() => {
+                messageDiv.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'end',
+                    inline: 'nearest'
+                });
+            }, 100);
+        }
+
+        // Format assistant messages with proper structure
+        function formatAssistantMessage(text) {
+            // Convert markdown-style formatting to HTML
+            let formatted = text
+                // Headers
+                .replace(/### (.*?)(\n|$)/g, '<h4>$1</h4>')
+                .replace(/## (.*?)(\n|$)/g, '<h3>$1</h3>')
+                
+                // Bold text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                
+                // Status badges
+                .replace(/\b(Viable|Available|Online|Active)\b/g, '<span class="status-badge status-viable">$1</span>')
+                .replace(/\b(Warning|Medium|Pending)\b/g, '<span class="status-badge status-warning">$1</span>')
+                .replace(/\b(Critical|Expired|Offline|Failed)\b/g, '<span class="status-badge status-critical">$1</span>')
+                
+                // Metric values (numbers with units)
+                .replace(/(\d+\.?\d*)\s*(hours?|h|minutes?|min|%|miles?|km)/g, '<span class="metric-value">$1 $2</span>')
+                
+                // Line breaks
+                .replace(/\n/g, '<br>');
+
+            // Convert bullet points to proper lists
+            const lines = formatted.split('<br>');
+            let inList = false;
+            let result = [];
+            
+            for (let line of lines) {
+                const trimmed = line.trim();
+                
+                // Check if line starts with bullet point markers
+                if (trimmed.match(/^[-•*]\s+/) || trimmed.match(/^\d+\.\s+/)) {
+                    if (!inList) {
+                        result.push('<ul>');
+                        inList = true;
+                    }
+                    // Remove bullet marker and wrap in li
+                    const content = trimmed.replace(/^[-•*]\s+/, '').replace(/^\d+\.\s+/, '');
+                    result.push(`<li>${content}</li>`);
+                } else {
+                    if (inList) {
+                        result.push('</ul>');
+                        inList = false;
+                    }
+                    if (trimmed) {
+                        result.push(`<p>${trimmed}</p>`);
+                    }
+                }
+            }
+            
+            if (inList) {
+                result.push('</ul>');
+            }
+            
+            return result.join('');
+        }
+
+        // Show typing indicator
+        function showTyping() {
+            isTyping = true;
+            const typingIndicator = document.getElementById('typing-indicator');
+            typingIndicator.style.display = 'block';
+            document.getElementById('send-button').disabled = true;
+            
+            // Smooth scroll to typing indicator
+            setTimeout(() => {
+                typingIndicator.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'end',
+                    inline: 'nearest'
+                });
+            }, 100);
+        }
+
+        // Hide typing indicator
+        function hideTyping() {
+            isTyping = false;
+            document.getElementById('typing-indicator').style.display = 'none';
+            document.getElementById('send-button').disabled = false;
+        }
+
+        // Check system status
+        async function checkSystemStatus() {
+            try {
+                const response = await fetch('/api/agentcore-status');
+                const status = await response.json();
+                
+                const statusText = document.getElementById('status-text');
+                if (status.agentcore_available) {
+                    statusText.textContent = `Online - ${status.target_count} tools available`;
+                } else {
+                    statusText.textContent = 'Online - Simulation mode';
+                }
+                
+            } catch (error) {
+                document.getElementById('status-text').textContent = 'Connection issues';
+            }
+        }
+
+        // Auto-resize textarea
+        document.getElementById('chat-input').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+    </script>
+</body>
+</html>

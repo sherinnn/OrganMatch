@@ -1,0 +1,24 @@
+[
+  {
+    "name": "viability-tool",
+    "description": "Evaluates organ viability based on donor conditions.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "organ_type": { "type": "string", "description": "Type of organ donated" },
+        "time_of_death": { "type": "string", "description": "Time when donor organ became available" },
+        "current_time": { "type": "string", "description": "Current time for viability calculation" },
+        "temperature_c": { "type": "number", "description": "Storage temperature in Celsius" },
+        "organ_condition_score": { "type": "number", "description": "Donor organ health score (0–100)" }
+      },
+      "required": ["organ_type", "time_of_death", "current_time"]
+    },
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "is_viable": { "type": "boolean", "description": "Whether the organ is viable" },
+        "hours_left": { "type": "number", "description": "Estimated hours of viability remaining" }
+      }
+    }
+  }
+]

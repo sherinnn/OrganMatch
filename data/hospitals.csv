@@ -1,0 +1,101 @@
+hospital_id,hospital_name,city,state,latitude,longitude,organ_storage_facility,transport_ready,icu_beds_available,transplant_specialties,contact_number,priority_score
+H001,Hospital_1,Miami,CO,39.943162,-100.791972,False,False,36,"Heart, Kidney",+1-555-9368,0.98
+H002,Hospital_2,Chicago,FL,34.713115,-95.288719,True,True,38,"Heart, Liver",+1-555-2281,0.51
+H003,Hospital_3,San Francisco,FL,44.372399,-120.110489,False,True,15,"Heart, Kidney",+1-555-6624,0.87
+H004,Hospital_4,Atlanta,TX,25.165916,-74.083708,False,False,46,"Heart, Kidney",+1-555-2194,0.97
+H005,Hospital_5,New York,CO,42.222869,-88.412017,True,False,43,"Kidney, Pancreas",+1-555-1487,0.67
+H006,Hospital_6,Miami,CA,40.644641,-79.595657,False,True,15,"Liver, Lung",+1-555-2507,0.19
+H007,Hospital_7,Atlanta,GA,25.200162,-70.300958,True,False,6,"Heart, Liver",+1-555-3585,0.57
+H008,Hospital_8,New York,TX,29.202334,-110.867408,True,False,0,"Heart, Kidney, Liver",+1-555-3108,0.79
+H009,Hospital_9,Atlanta,MA,26.963736,-86.332669,True,True,3,"Heart, Kidney",+1-555-6768,0.61
+H010,Hospital_10,Seattle,FL,38.08337,-71.512327,True,False,0,"Heart, Kidney, Liver",+1-555-1553,0.01
+H011,Hospital_11,Miami,CA,44.24369,-77.313297,False,False,17,"Heart, Kidney",+1-555-4366,0.66
+H012,Hospital_12,Miami,WA,37.47544,-108.942751,True,False,6,"Kidney, Pancreas",+1-555-6671,0.81
+H013,Hospital_13,Seattle,WA,28.027481,-79.727663,True,True,41,"Heart, Kidney, Liver",+1-555-3587,0.18
+H014,Hospital_14,Miami,TX,35.626034,-103.877857,False,False,43,"Heart, Kidney",+1-555-7137,0.2
+H015,Hospital_15,Atlanta,WA,29.544084,-86.162816,True,True,16,"Heart, Liver",+1-555-2849,0.48
+H016,Hospital_16,Boston,MA,43.287801,-95.633488,False,True,13,"Heart, Kidney, Liver",+1-555-9866,0.52
+H017,Hospital_17,Houston,MA,47.544018,-100.975684,True,False,4,"Liver, Lung",+1-555-1481,0.71
+H018,Hospital_18,Boston,MA,32.548648,-80.61453,True,False,28,"Kidney, Pancreas",+1-555-9395,0.96
+H019,Hospital_19,Houston,CO,42.243159,-89.579549,False,True,2,"Heart, Kidney, Liver",+1-555-8832,0.23
+H020,Hospital_20,Los Angeles,WA,39.129404,-98.326394,True,False,43,"Kidney, Pancreas",+1-555-6143,0.26
+H021,Hospital_21,Denver,CA,26.775114,-112.143488,False,True,16,"Heart, Liver",+1-555-2421,0.25
+H022,Hospital_22,Atlanta,MA,33.341126,-85.635177,True,False,27,"Liver, Lung",+1-555-2721,0.72
+H023,Hospital_23,Houston,CA,33.463097,-114.395543,False,True,1,"Heart, Kidney, Liver",+1-555-1297,0.4
+H024,Hospital_24,Chicago,MA,40.696764,-97.820826,False,True,39,"Kidney, Pancreas",+1-555-6999,0.78
+H025,Hospital_25,New York,CA,26.174203,-89.665732,False,False,36,"Kidney, Pancreas",+1-555-9656,0.4
+H026,Hospital_26,San Francisco,CA,29.03138,-96.530193,True,True,32,"Heart, Kidney, Liver",+1-555-6371,0.19
+H027,Hospital_27,Chicago,WA,40.759036,-111.012532,True,True,18,"Kidney, Pancreas",+1-555-4560,0.71
+H028,Hospital_28,Miami,WA,30.550733,-116.731579,True,False,9,"Heart, Kidney, Liver",+1-555-6295,0.18
+H029,Hospital_29,Boston,NY,29.861102,-122.133403,True,False,37,"Heart, Liver",+1-555-7404,0.49
+H030,Hospital_30,Seattle,CO,34.767924,-121.112259,False,True,14,"Kidney, Pancreas",+1-555-5249,0.0
+H031,Hospital_31,Boston,FL,42.932266,-103.87996,True,False,43,"Kidney, Pancreas",+1-555-5315,0.35
+H032,Hospital_32,San Francisco,NY,37.01605,-81.857355,False,True,14,"Liver, Lung",+1-555-9824,0.93
+H033,Hospital_33,San Francisco,CO,43.030184,-109.867015,True,False,40,"Liver, Lung",+1-555-7181,0.23
+H034,Hospital_34,Chicago,TX,47.01608,-88.94379,False,True,3,"Heart, Kidney, Liver",+1-555-7644,0.22
+H035,Hospital_35,Los Angeles,CA,30.600184,-91.524059,False,False,6,"Liver, Lung",+1-555-3314,0.16
+H036,Hospital_36,Chicago,TX,44.080637,-81.867869,True,False,3,"Heart, Kidney",+1-555-1225,0.13
+H037,Hospital_37,New York,CO,48.848116,-79.689095,False,True,42,"Heart, Kidney, Liver",+1-555-6930,0.4
+H038,Hospital_38,Houston,IL,44.875716,-113.147089,True,False,30,"Heart, Kidney",+1-555-6414,0.62
+H039,Hospital_39,Denver,WA,48.930911,-70.988658,True,False,36,"Heart, Liver",+1-555-3845,0.36
+H040,Hospital_40,Miami,TX,32.867879,-73.10965,False,False,26,"Heart, Kidney",+1-555-1616,0.41
+H041,Hospital_41,Atlanta,IL,25.061056,-109.004867,False,False,22,"Liver, Lung",+1-555-4211,0.2
+H042,Hospital_42,Denver,FL,35.752283,-76.31146,True,True,33,"Liver, Lung",+1-555-7256,0.21
+H043,Hospital_43,Boston,GA,45.9308,-117.35717,True,False,20,"Kidney, Pancreas",+1-555-7140,0.52
+H044,Hospital_44,Atlanta,FL,34.929908,-72.693881,True,False,10,"Heart, Kidney",+1-555-9826,0.55
+H045,Hospital_45,Miami,NY,38.401916,-79.816213,True,True,5,"Heart, Kidney, Liver",+1-555-4936,0.29
+H046,Hospital_46,Seattle,CO,42.55989,-72.062539,False,False,41,"Kidney, Pancreas",+1-555-1061,0.1
+H047,Hospital_47,Chicago,WA,28.064746,-95.264077,True,True,49,"Heart, Liver",+1-555-1625,0.22
+H048,Hospital_48,Miami,MA,41.44637,-79.411507,True,False,4,"Liver, Lung",+1-555-4990,0.34
+H049,Hospital_49,Denver,IL,28.84578,-105.888346,True,False,11,"Liver, Lung",+1-555-7746,0.91
+H050,Hospital_50,Houston,IL,30.54947,-88.099319,True,False,12,"Heart, Kidney, Liver",+1-555-5281,0.92
+H051,Hospital_51,Atlanta,CA,27.738506,-75.487852,True,True,10,"Heart, Kidney",+1-555-5609,0.05
+H052,Hospital_52,Chicago,IL,43.049574,-112.316404,True,True,28,"Liver, Lung",+1-555-4920,0.7
+H053,Hospital_53,Los Angeles,CA,27.330456,-99.198204,False,True,19,"Heart, Liver",+1-555-4614,0.8
+H054,Hospital_54,Miami,GA,27.237422,-81.202736,True,False,47,"Heart, Liver",+1-555-1264,0.96
+H055,Hospital_55,Seattle,GA,45.602347,-78.577677,False,True,1,"Heart, Kidney, Liver",+1-555-4941,0.78
+H056,Hospital_56,New York,NY,35.149267,-99.139605,True,True,12,"Heart, Liver",+1-555-6746,0.89
+H057,Hospital_57,Boston,IL,45.219968,-122.002363,False,False,10,"Heart, Liver",+1-555-1805,0.66
+H058,Hospital_58,Chicago,TX,48.162864,-119.060053,False,True,39,"Heart, Kidney, Liver",+1-555-8927,0.89
+H059,Hospital_59,Chicago,IL,48.08576,-113.191988,False,True,41,"Liver, Lung",+1-555-4697,0.16
+H060,Hospital_60,Miami,CA,39.039311,-103.902728,True,False,19,"Heart, Kidney",+1-555-3300,0.39
+H061,Hospital_61,Houston,CO,28.522213,-71.651743,True,False,43,"Liver, Lung",+1-555-3266,0.22
+H062,Hospital_62,Los Angeles,CO,43.470357,-71.80481,False,True,6,"Liver, Lung",+1-555-3361,0.81
+H063,Hospital_63,Miami,WA,48.636659,-74.394648,False,True,12,"Heart, Liver",+1-555-7925,0.18
+H064,Hospital_64,Miami,TX,36.828637,-118.203751,False,True,39,"Heart, Liver",+1-555-6793,0.5
+H065,Hospital_65,Houston,GA,37.112433,-99.461815,True,True,46,"Heart, Kidney",+1-555-5655,0.49
+H066,Hospital_66,Seattle,CA,35.818462,-87.165333,True,False,0,"Kidney, Pancreas",+1-555-1779,0.68
+H067,Hospital_67,San Francisco,TX,25.245031,-116.027266,True,True,25,"Kidney, Pancreas",+1-555-1247,0.48
+H068,Hospital_68,Denver,CA,30.615866,-90.853844,False,True,15,"Heart, Kidney, Liver",+1-555-6609,0.93
+H069,Hospital_69,Chicago,MA,44.399547,-112.989594,True,False,40,"Heart, Kidney, Liver",+1-555-2532,0.01
+H070,Hospital_70,Los Angeles,IL,36.552604,-102.418497,False,True,1,"Heart, Kidney",+1-555-4079,0.73
+H071,Hospital_71,Houston,CA,44.209456,-94.740119,False,False,23,"Heart, Kidney, Liver",+1-555-6391,0.04
+H072,Hospital_72,Seattle,WA,39.574314,-81.148794,True,False,31,"Heart, Liver",+1-555-7776,0.28
+H073,Hospital_73,Denver,MA,45.126571,-75.832068,True,False,24,"Heart, Liver",+1-555-1713,0.96
+H074,Hospital_74,Atlanta,MA,26.358956,-68.417129,True,False,2,"Heart, Liver",+1-555-2905,0.92
+H075,Hospital_75,New York,IL,38.670288,-100.36531,True,True,32,"Liver, Lung",+1-555-1267,0.28
+H076,Hospital_76,New York,WA,42.332919,-105.868926,True,True,46,"Heart, Kidney",+1-555-2281,0.73
+H077,Hospital_77,Chicago,CA,34.075448,-109.248197,True,True,40,"Heart, Kidney",+1-555-4398,0.11
+H078,Hospital_78,New York,FL,46.304256,-80.497269,True,False,48,"Heart, Kidney",+1-555-1463,0.85
+H079,Hospital_79,San Francisco,IL,38.546055,-67.048591,True,False,16,"Liver, Lung",+1-555-5438,0.74
+H080,Hospital_80,Chicago,CA,38.627061,-72.360256,False,False,23,"Liver, Lung",+1-555-4211,0.31
+H081,Hospital_81,Denver,WA,34.254012,-82.329875,False,False,6,"Kidney, Pancreas",+1-555-2325,0.26
+H082,Hospital_82,Denver,CA,48.429156,-115.336962,True,False,19,"Heart, Kidney",+1-555-2552,0.28
+H083,Hospital_83,Boston,CO,47.610158,-120.127145,False,False,16,"Liver, Lung",+1-555-8706,0.15
+H084,Hospital_84,Los Angeles,IL,38.732186,-77.476834,True,True,15,"Heart, Kidney, Liver",+1-555-2564,0.81
+H085,Hospital_85,Chicago,TX,38.867972,-113.743213,False,False,41,"Heart, Kidney, Liver",+1-555-5343,0.22
+H086,Hospital_86,New York,WA,48.319549,-114.473487,True,True,49,"Liver, Lung",+1-555-5162,0.66
+H087,Hospital_87,Atlanta,TX,33.504402,-107.925074,True,False,27,"Liver, Lung",+1-555-8167,0.56
+H088,Hospital_88,New York,CO,47.172431,-81.344124,True,True,49,"Kidney, Pancreas",+1-555-2945,0.96
+H089,Hospital_89,Seattle,NY,25.149645,-94.468468,False,True,18,"Liver, Lung",+1-555-8037,0.19
+H090,Hospital_90,Denver,MA,48.996185,-67.345607,True,True,9,"Liver, Lung",+1-555-6921,0.43
+H091,Hospital_91,Houston,IL,48.574367,-71.752569,False,False,0,"Heart, Kidney",+1-555-6518,0.36
+H092,Hospital_92,Atlanta,TX,48.040894,-98.71902,True,True,45,"Heart, Kidney, Liver",+1-555-4654,0.36
+H093,Hospital_93,Denver,WA,40.756304,-100.585436,False,False,33,"Heart, Kidney",+1-555-9546,0.88
+H094,Hospital_94,Denver,MA,47.625174,-79.36082,False,False,39,"Heart, Kidney, Liver",+1-555-1831,0.02
+H095,Hospital_95,Boston,FL,28.973442,-99.775542,True,False,25,"Kidney, Pancreas",+1-555-9669,0.96
+H096,Hospital_96,Seattle,FL,37.358811,-97.697384,True,True,49,"Heart, Liver",+1-555-4848,0.08
+H097,Hospital_97,San Francisco,MA,48.179961,-108.298316,False,True,1,"Kidney, Pancreas",+1-555-2227,0.25
+H098,Hospital_98,San Francisco,CA,45.518395,-106.662048,False,False,47,"Liver, Lung",+1-555-4289,0.82
+H099,Hospital_99,Miami,FL,33.775277,-107.297711,False,True,44,"Kidney, Pancreas",+1-555-5401,0.9
+H100,Hospital_100,Atlanta,CA,25.749677,-121.137989,True,True,6,"Heart, Kidney",+1-555-8757,0.01
