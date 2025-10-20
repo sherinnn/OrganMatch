@@ -107,19 +107,7 @@
             font-weight: 500;
         }
 
-        .live-metrics {
-            display: flex;
-            gap: 15px;
-            color: white;
-            font-size: 0.85em;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 6px 12px;
-            border-radius: 15px;
-        }
 
-        .live-metrics span {
-            font-weight: 500;
-        }
 
         .about-btn {
             background: rgba(255, 255, 255, 0.95);
@@ -434,9 +422,7 @@
                     <div class="status-indicator offline" id="system-status" title="Checking AgentCore status..."></div>
                     <span class="status-text">System</span>
                 </div>
-                <div class="live-metrics" id="live-metrics">
-                    <span>Loading...</span>
-                </div>
+
                 <button class="about-btn" onclick="showAbout()">About</button>
                 <i class="fas fa-user-circle user-icon" onclick="showUserMenu()"></i>
             </nav>
@@ -594,14 +580,12 @@
         // Initialize AgentCore integration
         document.addEventListener('DOMContentLoaded', function () {
             checkAgentCoreStatus();
-            loadSystemMetrics();
 
             // Initial display update
             setTimeout(updateAgentCoreDisplay, 1000);
 
             // Refresh status every 30 seconds
             setInterval(checkAgentCoreStatus, 30000);
-            setInterval(loadSystemMetrics, 60000);
         });
 
         // AgentCore status check
@@ -620,19 +604,7 @@
             }
         }
 
-        // Load system metrics
-        async function loadSystemMetrics() {
-            try {
-                const response = await fetch('/api/metrics');
-                systemMetrics = await response.json();
 
-                // Update metrics display if available
-                updateMetricsDisplay();
-
-            } catch (error) {
-                console.error('Metrics loading failed:', error);
-            }
-        }
 
         // Update system status indicators
         function updateSystemStatus() {
@@ -648,18 +620,7 @@
             }
         }
 
-        // Update metrics display
-        function updateMetricsDisplay() {
-            if (systemMetrics) {
-                const metricsElement = document.getElementById('live-metrics');
-                if (metricsElement) {
-                    metricsElement.innerHTML = `
-                        <span>Active: ${systemMetrics.activeTransports || 0}</span>
-                        <span>Success: ${systemMetrics.successfulMatches || 0}</span>
-                    `;
-                }
-            }
-        }
+
 
         // Enhanced navigation functions with AgentCore integration
         async function navigateToViability() {

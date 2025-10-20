@@ -1,10 +1,25 @@
 from flask import Blueprint, request, jsonify
-from backend.core import OrganMatchBackend
-from backend.core import donors_table, recipients_table, hospitals_table
+from backend.core import OrganMatchBackend, initialize_aws
 import boto3
-import os   
-backend = OrganMatchBackend()
+import os
+import json
+import requests
+from datetime import datetime
 from dotenv import load_dotenv
+
+# Initialize backend lazily
+backend = None
+
+def get_backend():
+    global backend
+    if backend is None:
+        backend = OrganMatchBackend()
+    return backend
+
+def get_tables():
+    initialize_aws()
+    from backend.core import donors_table, recipients_table, hospitals_table
+    return donors_table, recipients_table, hospitals_table
 
 
 load_dotenv()
@@ -98,6 +113,7 @@ def create_transport_plan():
 def get_organs():
     """Fetch and map donor data from DynamoDB"""
     try:
+        donors_table, _, _ = get_tables()
         response = donors_table.scan()
         items = response.get("Items", [])[:5]  # limit to 5
         mapped = []
@@ -119,6 +135,7 @@ def get_organs():
 def get_recipients():
     """Fetch and map recipient data from DynamoDB"""
     try:
+        _, recipients_table, _ = get_tables()
         response = recipients_table.scan()
         items = response.get("Items", [])[:5]  # limit to 5
         mapped = []
@@ -143,6 +160,7 @@ def get_recipients():
 @api_bp.route('/hospitals', methods=['GET'])
 def get_hospitals():
     try:
+        _, _, hospitals_table = get_tables()
         response = hospitals_table.scan()
         items = response.get("Items", [])
         return jsonify(items)
@@ -154,32 +172,37 @@ def get_hospitals():
 def check_viability():
     data = request.get_json()
     organ = data.get('organ', {})
-    return jsonify(backend.check_viability(organ))
+    return jsonify(get_backend().check_viability(organ))
 
 @api_bp.route('/get-weather', methods=['POST'])
 def get_weather():
     data = request.get_json()
-    return jsonify(backend.get_weather(data.get('location', 'Boston')))
+    return jsonify(get_backend().get_weather(data.get('location', 'Boston')))
 
 @api_bp.route('/search-flights', methods=['POST'])
 def search_flights():
     data = request.get_json()
     origin = data.get('origin', 'BOS')
     destination = data.get('destination', 'LAX')
-    return jsonify(backend.search_flights(origin, destination, data.get('date')))
+    return jsonify(get_backend().search_flights(origin, destination, data.get('date')))
 
 @api_bp.route('/match-compatibility', methods=['POST'])
 def match_compatibility():
     data = request.get_json()
     donor = data.get('donor', {})
     recipient = data.get('recipient', {})
-    return jsonify(backend.match_donor_recipient(donor, recipient))
+    return jsonify(get_backend().match_donor_recipient(donor, recipient))
 
 @api_bp.route('/agent-chat', methods=['POST'])
 def agent_chat():
     data = request.get_json()
     msg = data.get('message', '')
     context = data.get('context', {})
-    return jsonify(backend.invoke_agent(msg, context))
+    return jsonify(get_backend().invoke_agent(msg, context))
+
+# Health check endpoint for Vercel
+@api_bp.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "healthy", "service": "OrganMatch API"})
 
 # Keep adding your other API endpoints here (analytics, hospitals, transport, etc.)

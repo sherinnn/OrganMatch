@@ -1,8 +1,21 @@
 import boto3, os, json, uuid, random
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
-from backend.utils import simulate_weather_data, simulate_viability_check, simulate_flight_search, simulate_donor_matching
-
+try:
+    from backend.utils import simulate_weather_data, simulate_viability_check, simulate_flight_search, simulate_donor_matching
+except ImportError:
+    # Fallback functions if utils not available
+    def simulate_weather_data(location):
+        return {"location": location, "temperature": 20, "condition": "Clear"}
+    
+    def simulate_viability_check(organ):
+        return {"viability": 85, "status": "Good"}
+    
+    def simulate_flight_search(origin, destination, date):
+        return [{"flight": "AA123", "duration": "3h", "price": "$299"}]
+    
+    def simulate_donor_matching(donor, recipient):
+        return {"compatibility": 90, "match": True}
 
 load_dotenv()
 
@@ -13,33 +26,44 @@ MODEL_ID = "anthropic.claude-3-haiku-20240307-v1:0"
 AGENT_ID = os.getenv("AGENT_ID")
 AGENT_ALIAS_ID = os.getenv("AGENT_ALIAS_ID")
 
-# --- Initialize AWS Clients (global, accessible to class) ---
-try:
-    bedrock_runtime = boto3.client("bedrock-runtime", region_name=REGION)
-    bedrock_agent_runtime = boto3.client("bedrock-agent-runtime", region_name=REGION)
-    try:
-        agentcore_client = boto3.client("bedrock-agentcore-control", region_name=REGION)
-        AGENTCORE_AVAILABLE = True
-    except Exception:
-        agentcore_client = None
-        AGENTCORE_AVAILABLE = False
-except Exception as e:
-    print(f"⚠️ AWS initialization failed: {e}")
-    bedrock_runtime = None
-    bedrock_agent_runtime = None
-    agentcore_client = None
-    AGENTCORE_AVAILABLE = False
+# Global variables for lazy initialization
+bedrock_runtime = None
+bedrock_agent_runtime = None
+agentcore_client = None
+dynamodb = None
+donors_table = None
+recipients_table = None
+hospitals_table = None
+AGENTCORE_AVAILABLE = False
 
-
-
-
-# DynamoDB connection
-dynamodb = boto3.resource("dynamodb", region_name=REGION)
-
-# Tables (replace names if different)
-donors_table = dynamodb.Table("donors")
-recipients_table = dynamodb.Table("recipients")
-hospitals_table = dynamodb.Table("hospitals")
+def initialize_aws():
+    """Lazy initialization of AWS services"""
+    global bedrock_runtime, bedrock_agent_runtime, agentcore_client, dynamodb
+    global donors_table, recipients_table, hospitals_table, AGENTCORE_AVAILABLE
+    
+    if bedrock_runtime is None:
+        try:
+            bedrock_runtime = boto3.client("bedrock-runtime", region_name=REGION)
+            bedrock_agent_runtime = boto3.client("bedrock-agent-runtime", region_name=REGION)
+            try:
+                agentcore_client = boto3.client("bedrock-agentcore-control", region_name=REGION)
+                AGENTCORE_AVAILABLE = True
+            except Exception:
+                agentcore_client = None
+                AGENTCORE_AVAILABLE = False
+                
+            # DynamoDB connection
+            dynamodb = boto3.resource("dynamodb", region_name=REGION)
+            donors_table = dynamodb.Table("donors")
+            recipients_table = dynamodb.Table("recipients")
+            hospitals_table = dynamodb.Table("hospitals")
+            
+        except Exception as e:
+            print(f"⚠️ AWS initialization failed: {e}")
+            bedrock_runtime = None
+            bedrock_agent_runtime = None
+            agentcore_client = None
+            AGENTCORE_AVAILABLE = False
 
 
 
@@ -47,6 +71,7 @@ class OrganMatchBackend:
     """Backend logic for OrganMatch operations"""
     
     def __init__(self):
+        initialize_aws()
         self.bedrock_runtime = bedrock_runtime
         self.bedrock_agent_runtime = bedrock_agent_runtime
         self.agentcore_client = agentcore_client
