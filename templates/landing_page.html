@@ -144,7 +144,7 @@
         .main-content {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 80px 30px;
+            padding: 120px 30px 80px 30px;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 60px;
@@ -196,6 +196,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            text-align: center;
         }
 
         .medical-illustration {
@@ -208,7 +209,7 @@
         .action-cards {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 30px 80px;
+            padding: 40px 30px 80px;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 30px;
@@ -275,10 +276,14 @@
             display: none;
         }
 
-        /* Medical Illustration SVG */
-        .medical-svg {
-            width: 100%;
-            height: 300px;
+        /* Medical Illustration */
+        .medical-illustration {
+            width: 46%;
+            max-width: 184px;
+            height: auto;
+            object-fit: contain;
+            margin: 0 auto;
+            display: block;
         }
 
         /* Responsive Design */
@@ -409,11 +414,7 @@
         <div class="header-content">
             <a href="/" class="logo">
                 <div class="logo-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Medical cross -->
-                        <rect x="9" y="2" width="6" height="20" fill="white" />
-                        <rect x="2" y="9" width="20" height="6" fill="white" />
-                    </svg>
+                    <img src="/static/images/organ-donation.png" alt="OrganMatch Logo" style="width: 24px; height: 24px; object-fit: contain;">
                 </div>
                 <div class="logo-text">OrganMatch</div>
             </a>
@@ -438,74 +439,7 @@
         </div>
 
         <div class="hero-image">
-            <svg class="medical-svg" viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg">
-                <!-- Medical professionals illustration matching the reference -->
-
-                <!-- Doctor 1 (Male doctor in pink scrubs) -->
-                <g id="doctor1">
-                    <!-- Body -->
-                    <ellipse cx="140" cy="200" rx="35" ry="45" fill="#E91E63" />
-                    <!-- Head -->
-                    <circle cx="140" cy="120" r="28" fill="#D4A574" />
-                    <!-- Hair -->
-                    <path d="M115 105 Q140 90 165 105 Q165 115 140 120 Q115 115 115 105" fill="#2C3E50" />
-                    <!-- Eyes -->
-                    <circle cx="132" cy="115" r="2" fill="#333" />
-                    <circle cx="148" cy="115" r="2" fill="#333" />
-                    <!-- Smile -->
-                    <path d="M135 125 Q140 130 145 125" stroke="#333" stroke-width="1.5" fill="none" />
-                    <!-- Stethoscope -->
-                    <circle cx="155" cy="160" r="6" fill="#333" />
-                    <path d="M155 160 Q170 170 175 190" stroke="#333" stroke-width="3" fill="none" />
-                    <path d="M155 160 Q125 170 120 190" stroke="#333" stroke-width="3" fill="none" />
-                </g>
-
-                <!-- Doctor 2 (Female doctor/nurse in pink) -->
-                <g id="doctor2">
-                    <!-- Body -->
-                    <ellipse cx="240" cy="210" rx="32" ry="40" fill="#E91E63" />
-                    <!-- Head -->
-                    <circle cx="240" cy="130" r="25" fill="#D4A574" />
-                    <!-- Hair with head covering -->
-                    <path d="M218 115 Q240 100 262 115 Q262 125 240 130 Q218 125 218 115" fill="#E91E63" />
-                    <!-- Eyes (closed/smiling) -->
-                    <path d="M232 125 Q235 128 238 125" stroke="#333" stroke-width="1.5" fill="none" />
-                    <path d="M242 125 Q245 128 248 125" stroke="#333" stroke-width="1.5" fill="none" />
-                    <!-- Smile -->
-                    <path d="M235 135 Q240 140 245 135" stroke="#333" stroke-width="1.5" fill="none" />
-                    <!-- Stethoscope -->
-                    <circle cx="225" cy="170" r="5" fill="#333" />
-                    <path d="M225 170 Q210 180 205 200" stroke="#333" stroke-width="2" fill="none" />
-                </g>
-
-                <!-- Patient/Child figure -->
-                <g id="patient">
-                    <!-- Body -->
-                    <ellipse cx="190" cy="220" rx="25" ry="30" fill="#FFF3E0" />
-                    <!-- Head -->
-                    <circle cx="190" cy="180" r="18" fill="#D4A574" />
-                    <!-- Hair -->
-                    <path d="M175 170 Q190 160 205 170 Q205 175 190 180 Q175 175 175 170" fill="#8D6E63" />
-                    <!-- Eyes -->
-                    <circle cx="185" cy="175" r="1.5" fill="#333" />
-                    <circle cx="195" cy="175" r="1.5" fill="#333" />
-                    <!-- Smile -->
-                    <path d="M187 182 Q190 185 193 182" stroke="#333" stroke-width="1" fill="none" />
-                </g>
-
-                <!-- Medical equipment/table -->
-                <g id="table">
-                    <rect x="160" y="240" width="60" height="8" rx="4" fill="#FFD54F" />
-                    <rect x="175" y="248" width="6" height="15" fill="#FFB74D" />
-                    <rect x="199" y="248" width="6" height="15" fill="#FFB74D" />
-                </g>
-
-                <!-- Background elements -->
-                <circle cx="80" cy="60" r="12" fill="#E8F5E8" opacity="0.6" />
-                <circle cx="320" cy="50" r="15" fill="#E8F5E8" opacity="0.5" />
-                <circle cx="350" cy="140" r="10" fill="#E8F5E8" opacity="0.7" />
-                <circle cx="60" cy="180" r="14" fill="#E8F5E8" opacity="0.4" />
-            </svg>
+            <img src="/static/images/organ-donation.png" alt="Organ Donation Illustration" class="medical-illustration">
         </div>
     </main>
 
@@ -513,15 +447,7 @@
     <section class="action-cards">
         <div class="action-card" onclick="navigateToViability()">
             <div class="card-icon">
-                <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Heart with hand -->
-                    <path
-                        d="M30 45 C25 40, 15 35, 15 25 C15 20, 20 15, 25 15 C27 15, 30 17, 30 17 C30 17, 33 15, 35 15 C40 15, 45 20, 45 25 C45 35, 35 40, 30 45 Z"
-                        fill="#E91E63" />
-                    <!-- Hand underneath -->
-                    <ellipse cx="30" cy="50" rx="20" ry="8" fill="#D4A574" />
-                    <path d="M10 50 Q30 45 50 50 Q45 55 30 55 Q15 55 10 50" fill="#D4A574" />
-                </svg>
+                <img src="/static/images/kidneys.png" alt="Check Organ Viability" style="width: 60px; height: 60px; object-fit: contain;">
             </div>
             <div class="card-content">
                 <h3 class="card-title">Check Organ Viability</h3>
@@ -530,18 +456,7 @@
 
         <div class="action-card" onclick="navigateToMatching()">
             <div class="card-icon">
-                <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Two people embracing -->
-                    <!-- Person 1 -->
-                    <circle cx="22" cy="18" r="8" fill="#D4A574" />
-                    <ellipse cx="22" cy="35" rx="8" ry="12" fill="#E91E63" />
-                    <!-- Person 2 -->
-                    <circle cx="38" cy="20" r="7" fill="#D4A574" />
-                    <ellipse cx="38" cy="36" rx="7" ry="11" fill="#E91E63" />
-                    <!-- Arms embracing -->
-                    <path d="M30 30 Q35 25 40 30" stroke="#D4A574" stroke-width="3" fill="none" />
-                    <path d="M30 32 Q25 27 20 32" stroke="#D4A574" stroke-width="3" fill="none" />
-                </svg>
+                <img src="/static/images/lungs.png" alt="Donor-Recipient Matching" style="width: 60px; height: 60px; object-fit: contain;">
             </div>
             <div class="card-content">
                 <h3 class="card-title">Donor-Recipient Matching</h3>
@@ -550,16 +465,7 @@
 
         <div class="action-card" onclick="navigateToTransport()">
             <div class="card-icon">
-                <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Airplane -->
-                    <path
-                        d="M10 30 L25 25 L25 20 L30 18 L35 20 L35 25 L50 30 L45 32 L35 30 L35 35 L40 38 L38 40 L35 38 L30 40 L25 38 L22 40 L20 38 L25 35 L25 30 L15 32 Z"
-                        fill="#2196F3" />
-                    <!-- Wing details -->
-                    <path d="M25 25 L35 25 L50 30 L35 30 Z" fill="#1976D2" />
-                    <!-- Tail -->
-                    <path d="M35 35 L40 38 L35 38 Z" fill="#1976D2" />
-                </svg>
+                <img src="/static/images/plane.png" alt="Transportation" style="width: 60px; height: 60px; object-fit: contain;">
             </div>
             <div class="card-content">
                 <h3 class="card-title">Transportation</h3>
@@ -746,12 +652,7 @@
             }, 500);
         }
 
-        function navigateToAnalytics() {
-            showLoading();
-            setTimeout(() => {
-                window.location.href = '/analytics';
-            }, 500);
-        }
+
 
         // Update AgentCore status display
         function updateAgentCoreDisplay() {

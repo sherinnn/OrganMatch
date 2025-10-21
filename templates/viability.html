@@ -662,7 +662,7 @@
             <a href="/viability" class="nav-link active">Viability</a>
             <a href="/matching" class="nav-link">Matching</a>
             <a href="/transport" class="nav-link">Transport</a>
-            <a href="/analytics" class="nav-link">Analytics</a>
+
             <a href="/assistant" class="nav-link">Assistant</a>
         </nav>
     </header>
@@ -720,14 +720,10 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Location</label>
+                    <label class="form-label">Location (City)</label>
                     <select class="form-select" id="location" required>
-                        <option value="">Select hospital</option>
-                        <option value="boston-medical">🏥 Boston Medical Center</option>
-                        <option value="ucla-medical">🏥 UCLA Medical Center</option>
-                        <option value="mayo-clinic">🏥 Mayo Clinic</option>
-                        <option value="johns-hopkins">🏥 Johns Hopkins</option>
-                        <option value="cleveland-clinic">🏥 Cleveland Clinic</option>
+                        <option value="">Select city</option>
+                        <!-- Cities will be loaded from DynamoDB hospitals -->
                     </select>
                 </div>
 
@@ -852,6 +848,7 @@
             generateDonorId();
             setCurrentTime();
             setupSlider();
+            loadHospitals();
             
             // Check for pre-filled organ data
             const urlParams = new URLSearchParams(window.location.search);
@@ -1049,7 +1046,8 @@
                 type: organType,
                 bloodType: 'O+', // This should come from form in real app
                 age: 35, // This should come from form in real app
-                location: getLocationName(location),
+                location: location, // This is now the city name
+                locationDetails: getLocationDetails(location),
                 conditionScore: document.getElementById('condition-score').value
             };
             
@@ -1065,16 +1063,86 @@
             }, 100);
         }
 
+        // Load cities from DynamoDB hospitals
+        async function loadHospitals() {
+            try {
+                const response = await fetch('/api/cities');
+                const cities = await response.json();
+                
+                const locationSelect = document.getElementById('location');
+                locationSelect.innerHTML = '<option value="">Select city</option>';
+                
+                cities.forEach(cityData => {
+                    const option = document.createElement('option');
+                    option.value = cityData.city;
+                    
+                    const displayName = cityData.state ? 
+                        `${cityData.city}, ${cityData.state}` : 
+                        cityData.city;
+                    
+                    option.textContent = `🏙️ ${displayName} (${cityData.hospitals.length} hospitals)`;
+                    option.dataset.city = cityData.city;
+                    option.dataset.state = cityData.state;
+                    option.dataset.hospitalCount = cityData.hospitals.length;
+                    locationSelect.appendChild(option);
+                });
+                
+            } catch (error) {
+                console.error('Error loading cities:', error);
+                // Fallback to static cities
+                loadStaticCities();
+            }
+        }
+
+        // Fallback static cities
+        function loadStaticCities() {
+            const locationSelect = document.getElementById('location');
+            const staticCities = [
+                { city: 'Boston', state: 'MA' },
+                { city: 'Los Angeles', state: 'CA' },
+                { city: 'Rochester', state: 'MN' },
+                { city: 'Baltimore', state: 'MD' },
+                { city: 'Cleveland', state: 'OH' },
+                { city: 'Chicago', state: 'IL' },
+                { city: 'New York', state: 'NY' },
+                { city: 'Miami', state: 'FL' },
+                { city: 'Seattle', state: 'WA' },
+                { city: 'Denver', state: 'CO' }
+            ];
+            
+            locationSelect.innerHTML = '<option value="">Select city</option>';
+            staticCities.forEach(cityData => {
+                const option = document.createElement('option');
+                option.value = cityData.city;
+                option.textContent = `🏙️ ${cityData.city}, ${cityData.state}`;
+                option.dataset.city = cityData.city;
+                option.dataset.state = cityData.state;
+                locationSelect.appendChild(option);
+            });
+        }
+
         // Convert location code to readable name
         function getLocationName(locationCode) {
-            const locations = {
-                'boston-medical': 'Boston Medical Center',
-                'ucla-medical': 'UCLA Medical Center',
-                'mayo-clinic': 'Mayo Clinic',
-                'johns-hopkins': 'Johns Hopkins',
-                'cleveland-clinic': 'Cleveland Clinic'
-            };
-            return locations[locationCode] || 'Unknown Hospital';
+            const locationSelect = document.getElementById('location');
+            const selectedOption = locationSelect.querySelector(`option[value="${locationCode}"]`);
+            if (selectedOption) {
+                return selectedOption.textContent.replace('🏙️ ', '');
+            }
+            return 'Unknown City';
+        }
+
+        // Get location details (city, state)
+        function getLocationDetails(locationCode) {
+            const locationSelect = document.getElementById('location');
+            const selectedOption = locationSelect.querySelector(`option[value="${locationCode}"]`);
+            if (selectedOption) {
+                return {
+                    name: selectedOption.textContent.replace('🏙️ ', ''),
+                    city: selectedOption.dataset.city,
+                    state: selectedOption.dataset.state
+                };
+            }
+            return { name: 'Unknown City', city: 'Unknown', state: 'Unknown' };
         }
 
         // Load matching recipients for the current donor
@@ -1107,8 +1175,16 @@
                     else if (recipient.urgency === 'Medium') compatibilityScore += 10;
                     
                     // Organ type match
-                    if (recipient.condition.toLowerCase().includes(donorData.type.toLowerCase())) {
+                    if (recipient.condition && recipient.condition.toLowerCase().includes(donorData.type.toLowerCase())) {
                         compatibilityScore += 25;
+                    }
+                    
+                    // Ensure city and state are available (fallback to sample data structure)
+                    if (!recipient.city && recipient.hospital) {
+                        const cityFromHospital = getRecipientCity(recipient.hospital);
+                        const stateFromHospital = getRecipientState(recipient.hospital);
+                        recipient.city = cityFromHospital;
+                        recipient.state = stateFromHospital;
                     }
                     
                     return {
@@ -1136,6 +1212,8 @@
                     age: 32,
                     urgency: 'High',
                     hospital: 'UCLA Medical Center',
+                    city: 'Los Angeles',
+                    state: 'CA',
                     waitTime: '8 months',
                     condition: 'Heart failure'
                 },
@@ -1146,6 +1224,8 @@
                     age: 28,
                     urgency: 'Medium',
                     hospital: 'Mayo Clinic',
+                    city: 'Rochester',
+                    state: 'MN',
                     waitTime: '6 months',
                     condition: 'Cardiomyopathy'
                 },
@@ -1156,6 +1236,8 @@
                     age: 45,
                     urgency: 'High',
                     hospital: 'Johns Hopkins',
+                    city: 'Baltimore',
+                    state: 'MD',
                     waitTime: '12 months',
                     condition: 'Heart disease'
                 }
@@ -1234,7 +1316,7 @@
                             <span>Urgency:</span> <strong>${recipient.urgency}</strong>
                         </div>
                         <div class="detail-row">
-                            <span>Hospital:</span> <strong>${recipient.hospital}</strong>
+                            <span>Location:</span> <strong>${recipient.city}, ${recipient.state}</strong>
                         </div>
                         <div class="detail-row">
                             <span>Wait Time:</span> <strong>${recipient.waitTime}</strong>
@@ -1271,67 +1353,106 @@
         // Update flight booking information
         function updateFlightBookingInfo() {
             if (currentDonor && selectedRecipient) {
-                document.getElementById('flight-origin').textContent = currentDonor.location;
-                document.getElementById('flight-destination').textContent = selectedRecipient.hospital;
+                const donorLocation = currentDonor.locationDetails;
+                const recipientLocation = `${selectedRecipient.city}, ${selectedRecipient.state}`;
+                
+                document.getElementById('flight-origin').textContent = `${donorLocation.city}, ${donorLocation.state}`;
+                document.getElementById('flight-destination').textContent = recipientLocation;
                 document.getElementById('donor-info').textContent = `${currentDonor.id} (${currentDonor.type})`;
                 document.getElementById('recipient-info').textContent = `${selectedRecipient.id} (${selectedRecipient.name})`;
             }
         }
 
-        // Book flight for organ transport
-        async function bookFlight() {
+        // Book flight for organ transport - redirect to transport page
+        function bookFlight() {
             if (!currentDonor || !selectedRecipient) {
                 showNotification('Please select a recipient first', 'warning');
                 return;
             }
             
-            document.getElementById('booking-status').innerHTML = '<div class="loading"></div><p>Searching available flights...</p>';
+            // Get location details
+            const donorLocation = currentDonor.locationDetails;
+            const recipientCity = selectedRecipient.city;
+            const recipientState = selectedRecipient.state;
             
-            try {
-                // Simulate API call
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                // Sample flight data
-                const flightData = {
-                    flights: [{
-                        flight: 'UA1234',
-                        departure: '14:30',
-                        duration: '2h 45m',
-                        aircraft: 'Boeing 737'
-                    }]
-                };
-                
-                if (flightData.flights && flightData.flights.length > 0) {
-                    const bestFlight = flightData.flights[0];
-                    document.getElementById('booking-status').innerHTML = `
-                        <div class="flight-booked">
-                            <i class="fas fa-check-circle" style="color: #28a745; font-size: 1.5em; margin-bottom: 10px;"></i>
-                            <div><strong>Flight Found!</strong></div>
-                            <div>${bestFlight.flight} - Departs ${bestFlight.departure}</div>
-                            <div>Duration: ${bestFlight.duration}</div>
-                        </div>
-                    `;
-                    
-                    // Show confirmation button
-                    document.getElementById('confirm-transport').style.display = 'inline-flex';
-                } else {
-                    document.getElementById('booking-status').innerHTML = `
-                        <div class="flight-error">
-                            <i class="fas fa-exclamation-triangle" style="color: #ffc107; font-size: 1.5em; margin-bottom: 10px;"></i>
-                            <div>No flights available. Consider ground transport.</div>
-                        </div>
-                    `;
-                }
-                
-            } catch (error) {
-                console.error('Error booking flight:', error);
-                document.getElementById('booking-status').innerHTML = `
-                    <div class="flight-error">
-                        <i class="fas fa-times-circle" style="color: #dc3545; font-size: 1.5em; margin-bottom: 10px;"></i>
-                        <div>Error searching flights. Please try again.</div>
-                    </div>
-                `;
-            }
+            // Create transport data to pass to transport page
+            const transportData = {
+                donorId: currentDonor.id,
+                organType: currentDonor.type,
+                origin: {
+                    name: `${donorLocation.city}, ${donorLocation.state}`,
+                    city: donorLocation.city,
+                    state: donorLocation.state,
+                    code: getAirportCode(donorLocation.city)
+                },
+                destination: {
+                    name: `${recipientCity}, ${recipientState}`,
+                    city: recipientCity,
+                    state: recipientState,
+                    code: getAirportCode(recipientCity)
+                },
+                recipientId: selectedRecipient.id,
+                urgency: selectedRecipient.urgency
+            };
+            
+            // Store transport data in sessionStorage
+            sessionStorage.setItem('transportData', JSON.stringify(transportData));
+            
+            // Show loading and redirect
+            showNotification('Redirecting to transport planning...', 'info');
+            
+            setTimeout(() => {
+                window.location.href = '/transport';
+            }, 1000);
+        }
+
+        // Helper functions to get airport codes and recipient location details
+        function getAirportCode(city) {
+            const airportCodes = {
+                'Boston': 'BOS',
+                'Los Angeles': 'LAX', 
+                'Rochester': 'RST',
+                'Baltimore': 'BWI',
+                'Cleveland': 'CLE',
+                'Chicago': 'ORD',
+                'New York': 'JFK',
+                'Miami': 'MIA',
+                'Seattle': 'SEA',
+                'Denver': 'DEN'
+            };
+            return airportCodes[city] || 'UNK';
+        }
+
+        function getRecipientCity(hospitalName) {
+            const hospitalCities = {
+                'UCLA Medical Center': 'Los Angeles',
+                'Mayo Clinic': 'Rochester',
+                'Johns Hopkins': 'Baltimore',
+                'Cleveland Clinic': 'Cleveland',
+                'Boston Medical Center': 'Boston',
+                'Chicago General Hospital': 'Chicago',
+                'Mount Sinai Hospital': 'New York',
+                'Jackson Memorial Hospital': 'Miami',
+                'University of Washington Medical Center': 'Seattle',
+                'Denver Health Medical Center': 'Denver'
+            };
+            return hospitalCities[hospitalName] || 'Unknown';
+        }
+
+        function getRecipientState(hospitalName) {
+            const hospitalStates = {
+                'UCLA Medical Center': 'CA',
+                'Mayo Clinic': 'MN',
+                'Johns Hopkins': 'MD',
+                'Cleveland Clinic': 'OH',
+                'Boston Medical Center': 'MA',
+                'Chicago General Hospital': 'IL',
+                'Mount Sinai Hospital': 'NY',
+                'Jackson Memorial Hospital': 'FL',
+                'University of Washington Medical Center': 'WA',
+                'Denver Health Medical Center': 'CO'
+            };
+            return hospitalStates[hospitalName] || 'Unknown';
         }
 
         // Confirm transport
