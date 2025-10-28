@@ -1,3 +1,5 @@
+![Screenshot](https://github.com/sherinnn/OrganMatch/blob/main/organmatch_architecture_diagram.png)
+
 # 🫀 OrganMatch – End-to-End Organ Donation and Logistics Platform
 
 **OrganMatch** is an AI-driven organ donation and logistics portal that automates the entire organ transplantation workflow — from donor registration and viability analysis to donor-recipient matching and transport optimization.  
