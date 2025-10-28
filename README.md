@@ -1,12 +1,14 @@
-![Screenshot](https://github.com/sherinnn/OrganMatch/blob/main/organmatch_architecture_diagram.png)
+
 
 # 🫀 OrganMatch – End-to-End Organ Donation and Logistics Platform
 
-**OrganMatch** is an AI-driven organ donation and logistics portal that automates the entire organ transplantation workflow — from donor registration and viability analysis to donor-recipient matching and transport optimization.  
+**OrganMatch** is an AI-driven organ donation and logistics portal that automates the entire organ transplantation workflow from donor registration and viability analysis to donor-recipient matching and transport optimization.  
 
 Developed as part of the **AWS Global AI Agent Hackathon**, it leverages **Amazon Bedrock**, **Lambda**, and **DynamoDB** to power real-time decision-making through intelligent agent-based orchestration.
 
 ---
+
+![Screenshot](https://github.com/sherinnn/OrganMatch/blob/main/organmatch_architecture_diagram.png)
 
 ## 🧠 Problem Statement
 
@@ -39,13 +41,7 @@ OrganMatch introduces an **AI-powered intelligent agent** that:
 ### High-Level Overview
 OrganMatch is built using a **modular, cloud-native architecture** with serverless Lambda tools connected through **Bedrock AgentCore Gateway**.
 
-<p align="center">
-  <img src="Blank diagram.png" alt="OrganMatch System Architecture" width="800"/>
-</p>
 
-<p align="center">
-  <img src="fallback.png" alt="Bedrock AgentCore Gateway Architecture" width="800"/>
-</p>
 
 ---
 
